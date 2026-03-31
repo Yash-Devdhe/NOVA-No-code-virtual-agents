@@ -40,6 +40,134 @@ interface AgentTestModalProps {
   nodes: ToolNode[];
 }
 
+function extractCurrencyCode(value: string) {
+  const trimmed = value.trim().toUpperCase();
+  if (/^[A-Z]{3}$/.test(trimmed)) return trimmed;
+  return trimmed.match(/\b[A-Z]{3}\b/)?.[0] || null;
+}
+
+function extractNumber(value: string) {
+  const match = value.match(/\d+/);
+  return match?.[0] || null;
+}
+
+function normalizeConfiguredCurrencyUrl(rawUrl: string, prompt: string) {
+  const inputCode = extractCurrencyCode(prompt);
+  const configuredCode = rawUrl.match(/\/([A-Z]{3})\/?$/i)?.[1]?.toUpperCase() || "INR";
+  const base = rawUrl.replace(/\/[A-Z]{3}\/?$/i, "");
+  return `${base}/${inputCode || configuredCode}`;
+}
+
+function formatApiResponse(data: any) {
+  if (data?.text) return data.text;
+
+  if (data?.rates && data?.base) {
+    const sample = Object.entries(data.rates)
+      .slice(0, 10)
+      .map(([code, rate]) => `${data.base} -> ${code}: ${rate}`)
+      .join("\n");
+    return [`Base currency: ${data.base}`, sample].filter(Boolean).join("\n");
+  }
+
+  if (data?.convertedAmount && data?.from && data?.to) {
+    return `${data.amount} ${data.from} = ${data.convertedAmount} ${data.to}`;
+  }
+
+  if (data?.setup || data?.punchline) {
+    return [data.setup, data.punchline].filter(Boolean).join("\n");
+  }
+
+  return typeof data === "string" ? data : JSON.stringify(data, null, 2);
+}
+
+async function runPreviewApiNode(node: ToolNode, prompt: string) {
+  const apiUrl = String(node.config?.apiUrl || "");
+  const configuredMethod = String(node.config?.method || "GET").toUpperCase();
+  const isInternal = apiUrl.startsWith("/");
+  const isExchangeRateApi = /api\.exchangerate-api\.com\/v4\/latest/i.test(apiUrl);
+  const isWorldTimeApi = /worldtimeapi\.org\/api\/timezone/i.test(apiUrl);
+  const isCountryApi = /restcountries\.com\/v3\.1\/name/i.test(apiUrl);
+  const isCryptoApi = /coingecko\.com\/api\/v3\/simple\/price/i.test(apiUrl);
+  const isIpApi = /ipapi\.co/i.test(apiUrl);
+  const isJokeApi = /official-joke-api/i.test(apiUrl);
+  const isNumbersApi = /numbersapi\.com/i.test(apiUrl);
+
+  let method = configuredMethod;
+  let url = apiUrl;
+  let body: Record<string, unknown> | undefined;
+
+  if (isExchangeRateApi) {
+    method = "GET";
+    url = normalizeConfiguredCurrencyUrl(apiUrl, prompt);
+  } else if (isWorldTimeApi) {
+    method = "GET";
+    const timezone = prompt.trim() || "Asia/Kolkata";
+    url = apiUrl.replace(/\/[A-Za-z_]+(?:\/[A-Za-z_]+)*$/i, "") + `/${timezone}`;
+  } else if (isCountryApi) {
+    method = "GET";
+    const country = prompt.trim() || "india";
+    url = apiUrl.replace(/\/[^/]+$/i, "") + `/${encodeURIComponent(country)}`;
+  } else if (isCryptoApi) {
+    method = "GET";
+    const coin = prompt.trim().split(/\s+/)[0] || "bitcoin";
+    const targetUrl = new URL(apiUrl);
+    targetUrl.searchParams.set("ids", coin.toLowerCase());
+    if (!targetUrl.searchParams.get("vs_currencies")) {
+      targetUrl.searchParams.set("vs_currencies", "usd,inr");
+    }
+    url = targetUrl.toString();
+  } else if (isIpApi) {
+    method = "GET";
+    const ip = prompt.trim() || "json";
+    url = /\/json\/?$/i.test(apiUrl)
+      ? (prompt.trim() ? `https://ipapi.co/${ip}/json/` : "https://ipapi.co/json/")
+      : apiUrl;
+  } else if (isJokeApi) {
+    method = "GET";
+  } else if (isNumbersApi) {
+    method = "GET";
+    const value = extractNumber(prompt) || "300";
+    url = apiUrl.replace(/\/\d+(?:\/date)?$/i, "") + `/${value}`;
+  } else if (configuredMethod !== "GET") {
+    body = {
+      prompt,
+      input: prompt,
+      city: prompt,
+      location: prompt,
+      country: prompt,
+      timezone: prompt,
+      coin: prompt,
+      base: extractCurrencyCode(prompt),
+      currency: extractCurrencyCode(prompt),
+      number: extractNumber(prompt),
+    };
+  }
+
+  const response = isInternal
+    ? await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: method === "GET" ? undefined : JSON.stringify(body || {}),
+      })
+    : await fetch("/api/custom-api", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          url,
+          method,
+          body,
+          contentType: "application/json",
+        }),
+      });
+
+  const payload = await response.json();
+  if (!response.ok) {
+    throw new Error(payload?.error || payload?.details || "Failed to call API");
+  }
+
+  return formatApiResponse(payload.data ?? payload);
+}
+
 const getToolIcon = (type: string) => {
   switch (type) {
     case "start":
@@ -137,21 +265,32 @@ const AgentTestModal = ({
     setLoading(true);
 
     try {
-      const response = await fetch("/api/openai", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: input.trim(),
-          type: "chat",
-        }),
-      });
+      const apiNodes = nodes.filter((node) => node.type === "api" && node.config?.apiUrl);
+      const messageText = input.trim();
+      const content =
+        apiNodes.length === 1
+          ? await runPreviewApiNode(apiNodes[0], messageText)
+          : await (async () => {
+              const response = await fetch("/api/openai", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  prompt: messageText,
+                  type: "chat",
+                }),
+              });
 
-      const data = await response.json();
+              const data = await response.json();
+              return (
+                data.message ||
+                "I received your message. In a production environment, I would process this using your configured agent workflow and tools."
+              );
+            })();
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: data.message || "I received your message. In a production environment, I would process this using your configured agent workflow and tools.",
+        content,
         timestamp: new Date(),
       };
 

@@ -1,12 +1,18 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { NextResponse } from 'next/server'
+import { isClerkEnabled } from '@/lib/authMode'
 
 const isPublicRoute = createRouteMatcher(['/sign-in(.*)','/sign-up(.*)'])
 
-export default clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) {
-    await auth.protect()
-  }
-})
+const passthroughMiddleware = () => NextResponse.next()
+
+export default isClerkEnabled
+  ? clerkMiddleware(async (auth, req) => {
+      if (!isPublicRoute(req)) {
+        await auth.protect()
+      }
+    })
+  : passthroughMiddleware
 
 export const config = {
   matcher: [

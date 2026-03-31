@@ -208,6 +208,8 @@ const AgentBuilderPage = () => {
                 </div>
                 <CodeEditor
                   code={customCode}
+                  agentName={agentName}
+                  nodes={nodes}
                   onChange={(code: string) => {
                     setCustomCode(code);
                     setSaved(false);
@@ -280,6 +282,8 @@ const AgentBuilderPage = () => {
             </div>
             <CodeEditor
               code={customCode}
+              agentName={agentName}
+              nodes={nodes}
               onChange={(code: string) => {
                 setCustomCode(code);
                 setSaved(false);

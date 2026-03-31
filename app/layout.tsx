@@ -4,6 +4,7 @@ import "./globals.css";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 import { ClerkProvider } from '@clerk/nextjs'
 import { Provider } from "@radix-ui/react-tooltip";
+import { isClerkEnabled } from "@/lib/authMode";
 
 export const metadata: Metadata = {
   title: "NOVA: No Code Virtual Agents",
@@ -15,20 +16,26 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const content = (
+    <ConvexClientProvider>
+      <Provider>
+        {children}
+      </Provider>
+    </ConvexClientProvider>
+  );
+
   return (
     <html lang="en">
       <body className={outfit.className} >
-
-        <ClerkProvider
-          publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}
-        >
-
-          <ConvexClientProvider>
-            <Provider>
-              {children}
-            </Provider>
-          </ConvexClientProvider>
-        </ClerkProvider>
+        {isClerkEnabled ? (
+          <ClerkProvider
+            publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}
+          >
+            {content}
+          </ClerkProvider>
+        ) : (
+          content
+        )}
       </body>
     </html>
   );

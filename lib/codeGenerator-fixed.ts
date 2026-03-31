@@ -64,7 +64,6 @@ export function generateAgentCode(
  */
 
 const API_KEYS = ${JSON.stringify(apiKeys, null, 2)};
-const BASE_URL = process.env.NOVA_AGENT_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 const AGENT = ${JSON.stringify(
     {
@@ -74,7 +73,7 @@ const AGENT = ${JSON.stringify(
       settings: {
         instructions: settings.instructions || "",
         includeChatHistory: settings.includeChatHistory ?? true,
-        model: settings.model || "gpt-4o-mini",
+        model: settings.model || "gpt-5",
       },
       nodes: serializedNodes,
       edges,
@@ -92,36 +91,6 @@ function slugify(value${isTs ? ": string" : ""}) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "_")
     .replace(/^_+|_+$/g, "");
-}
-
-function resolveToolUrl(url${isTs ? ": string" : ""}) {
-  if (!url) return url;
-  if (/^https?:\\/\\//i.test(url)) {
-    return url;
-  }
-  return new URL(url.startsWith("/") ? url : \`/\${url}\`, BASE_URL).toString();
-}
-
-function pickBestUrl(rawValue${isTs ? ": string" : ""}) {
-  if (!rawValue) return rawValue;
-
-  const candidates = String(rawValue)
-    .split(/\\s+/)
-    .map((item) => item.trim())
-    .filter(Boolean);
-
-  if (candidates.length <= 1) {
-    return rawValue;
-  }
-
-  const preferred = candidates.find(
-    (item) =>
-      /^https?:\\/\\//i.test(item) &&
-      !/\\/docs(\\/|$)/i.test(item) &&
-      !/\\/en\\/docs(\\/|$)/i.test(item)
-  );
-
-  return preferred || candidates[0];
 }
 
 async function callOpenAI(prompt${isTs ? ": string" : ""}, workflowState${isTs ? ": Record<string, unknown>" : ""}, apiKey${isTs ? "?: string" : ""}) {
@@ -148,7 +117,7 @@ async function callOpenAI(prompt${isTs ? ": string" : ""}, workflowState${isTs ?
     JSON.stringify(workflowState, null, 2),
   ].join("\\n\\n");
 
-const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -156,7 +125,7 @@ const response = await fetch("https://api.openai.com/v1/chat/completions", {
     },
     body: JSON.stringify({
       model: AGENT.settings.model || "gpt-4o-mini",
-      input: [
+      messages: [
         {
           role: "system",
           content: [{ type: "input_text", text: systemPrompt }],
@@ -166,12 +135,7 @@ const response = await fetch("https://api.openai.com/v1/chat/completions", {
           content: [{ type: "input_text", text: prompt }],
         },
       ],
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: prompt }
-      ],
-      temperature: 0.7,
-      max_tokens: 2000,
+    },
     }),
   });
 
@@ -193,9 +157,7 @@ const response = await fetch("https://api.openai.com/v1/chat/completions", {
 }
 
 async function executeHttpTool(tool${isTs ? ": any" : ""}, prompt${isTs ? ": string" : ""}, state${isTs ? ": Record<string, unknown>" : ""}, apiKeyConfig${isTs ? "?: any" : ""}) {
-  const normalizedApiUrl = pickBestUrl(tool.apiUrl || "");
-
-  if (!normalizedApiUrl) {
+  if (!tool.apiUrl) {
     return {
       ok: false,
       skipped: true,
@@ -205,6 +167,11 @@ async function executeHttpTool(tool${isTs ? ": any" : ""}, prompt${isTs ? ": str
 
   const method = (tool.method || "GET").toUpperCase();
   const shouldSendBody = ["POST", "PUT", "PATCH", "DELETE"].includes(method);
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  // Add API key headers if configured
   const headers${isTs ? ": Record<string, string>" : ""} = {
   "Content-Type": "application/json",
 };
@@ -218,25 +185,21 @@ if (apiKeyConfig?.useApiKey && apiKeyConfig.apiKey) {
       ? 'X-API-Key'
       : 'Authorization';
 
-    const headerValue = 
-      apiKeyConfig.headerType === 'bearer'
-        ? \`Bearer \${apiKeyConfig.apiKey}\`
-        : apiKeyConfig.apiKey;
+  const headerValue = 
+    apiKeyConfig.headerType === 'bearer'
+     ? \`Bearer \${apiKeyConfig.apiKey}\`
+      : apiKeyConfig.apiKey;
 
   headers[headerName] = headerValue;
 }
 
-  const response = await fetch(resolveToolUrl(normalizedApiUrl), {
+  const response = await fetch(tool.apiUrl, {
     method,
     headers,
     body: shouldSendBody
       ? JSON.stringify({
           prompt,
           state,
-          city: prompt,
-          location: prompt,
-          currency: prompt,
-          base: prompt,
           params: tool.paramsSchema || {},
         })
       : undefined,
@@ -327,24 +290,6 @@ async function runWorkflow(prompt${isTs ? ": string" : ""})${isTs ? ": Promise<W
   return state;
 }
 
-function summarizeWorkflowReply(workflow${isTs ? ": Record<string, unknown>" : ""}) {
-  for (const [key, value] of Object.entries(workflow)) {
-    if (["prompt", "visitedNodes", "chatHistory"].includes(key)) {
-      continue;
-    }
-
-    const typedValue = value${isTs ? " as any" : ""};
-    if (typedValue?.data?.text) {
-      return typedValue.data.text;
-    }
-    if (typedValue?.data && typeof typedValue.data === "object") {
-      return JSON.stringify(typedValue.data, null, 2);
-    }
-  }
-
-  return null;
-}
-
 async function runAgent(prompt${isTs ? ": string" : ""}, chatHistory${isTs ? ": Array<{ role: string; content: string }> = []" : " = []"}) {
   const workflow = await runWorkflow(prompt);
   if (AGENT.settings.includeChatHistory) {
@@ -352,12 +297,11 @@ async function runAgent(prompt${isTs ? ": string" : ""}, chatHistory${isTs ? ": 
   }
 
   const completion = await callOpenAI(prompt, workflow);
-  const workflowReply = summarizeWorkflowReply(workflow);
   return {
     agent: AGENT.name,
     mode: completion.mode,
     workflow,
-      reply: completion.mode === "offline" && workflowReply ? workflowReply : completion.content,
+      reply: completion.content,
   };
 }
 
@@ -365,45 +309,39 @@ async function main() {
   let prompt = process.argv.slice(2).join(" ").trim();
 
   if (!prompt) {
-    if (!process.stdin.isTTY) {
-      console.log("This generated file supports interactive terminal chat, but the current runner is non-interactive.");
-      console.log("Run it in a real terminal instead:");
-      console.log(\`  set NOVA_AGENT_BASE_URL=\${BASE_URL}\`);
-      console.log("  node generated-agent.js");
-      console.log('Or run one-shot mode: node generated-agent.js "INR"');
-      return;
-    }
-
     const readline = (await import("readline/promises")).default;
     const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-    const chatHistory${isTs ? ": Array<{ role: string; content: string }>" : ""} = [];
 
-    console.log(\`Starting \${AGENT.name} terminal chat.\`);
-    console.log("Type a city or 'city, country' for live location data.");
-    console.log("Type 'exit' to quit.\\n");
+    console.log("No prompt provided. Choose an action:");
+    console.log("1) Weather lookup");
+    console.log("2) Currency conversion");
+    console.log("3) Custom prompt");
 
-    while (true) {
-      const userInput = (await rl.question("> ")).trim();
-      if (!userInput) {
-        continue;
-      }
-      if (["exit", "quit"].includes(userInput.toLowerCase())) {
-        break;
-      }
+    const choice = (await rl.question("Select 1, 2 or 3: ")).trim();
 
-      chatHistory.push({ role: "user", content: userInput });
-      const result = await runAgent(userInput, chatHistory);
-      const reply =
-        typeof result.reply === "string"
-          ? result.reply
-          : JSON.stringify(result.reply, null, 2);
-
-      console.log("\\n" + reply + "\\n");
-      chatHistory.push({ role: "assistant", content: reply });
+    if (choice === "1") {
+      const city = (await rl.question("Enter city name (e.g., New York): ")).trim();
+      prompt = city ? "Get current weather for " + city : "Get current weather";
+    } else if (choice === "2") {
+      const from = (await rl.question("From currency (e.g., USD): ")).trim().toUpperCase();
+      const to = (await rl.question("To currency (e.g., EUR): ")).trim().toUpperCase();
+      const amount = (await rl.question("Amount (e.g., 100): ")).trim();
+      prompt = "Convert " + (amount || "1") + " " + (from || "USD") + " to " + (to || "EUR");
+    } else if (choice === "3") {
+      const custom = (await rl.question("Enter your custom prompt: ")).trim();
+      prompt = custom;
+    } else {
+      console.error("Invalid option selected. Exiting.");
+      rl.close();
+      process.exit(1);
     }
 
     rl.close();
-    return;
+
+    if (!prompt) {
+      console.error("No prompt could be generated. Please rerun with parameters or choose a valid option.");
+      process.exit(1);
+    }
   }
 
   const result = await runAgent(prompt);

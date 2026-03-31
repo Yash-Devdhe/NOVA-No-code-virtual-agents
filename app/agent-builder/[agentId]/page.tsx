@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState, use } from "react";
 import { Background, BackgroundVariant, Controls, MiniMap, Position, ReactFlow, addEdge, applyEdgeChanges, applyNodeChanges, Handle, type Connection } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useMutation, useQuery } from "convex/react";
@@ -18,6 +18,7 @@ import { generateAgentCode } from "@/lib/codeGenerator";
 import type { CustomTool, RFEdge, RFNode } from "@/types/agent-builder";
 import CustomToolsManager from "../../dashboard/_components/CustomToolsManager";
 import DragApiKeyDropdown from "../_components/DragApiKeyDropdown";
+import AgentTestModal from "../../dashboard/_components/AgentTestModal";
 
 type AgentType = "assistant" | "workflow" | "custom";
 type OutputFormat = "text" | "json";
@@ -42,6 +43,8 @@ const TOOLS: Tool[] = [
 const slug = (v: string) => v.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 const nodeClass = (type: string) => ({ start: "border-emerald-300 bg-emerald-50", end: "border-rose-300 bg-rose-50", api: "border-cyan-300 bg-cyan-50", llm: "border-amber-300 bg-amber-50", if: "border-violet-300 bg-violet-50", while: "border-blue-300 bg-blue-50", for: "border-blue-300 bg-blue-50", workflow: "border-orange-300 bg-orange-50", userApproval: "border-pink-300 bg-pink-50" }[type] || "border-slate-300 bg-white");
 const subtitle = (type: string) => ({ start: "Entry point", end: "Exit point", api: "External request", llm: "Model reasoning", if: "Conditional branch", while: "Loop step", for: "Index-based iteration", workflow: "Nested workflow", userApproval: "Human review" }[type] || "Workflow step");
+const shouldForceGetMethod = (value: string) =>
+  /api\.exchangerate-api\.com\/v4\/latest|worldtimeapi\.org\/api\/timezone|restcountries\.com\/v3\.1\/name|coingecko\.com\/api\/v3\/simple\/price|official-joke-api|numbersapi\.com|ipapi\.co/i.test(value);
 
 function makeNode(tool: Tool, count: number, customTool?: CustomTool, position?: { x: number; y: number }): RFNode {
   const label = customTool?.name || tool.label;
@@ -60,6 +63,7 @@ function makeNode(tool: Tool, count: number, customTool?: CustomTool, position?:
   };
 }
 
+
 const FlowNode = ({ data, selected }: { data: RFNode["data"]; selected?: boolean }) => {
   const type = String(data?.type || "default");
   return (
@@ -77,7 +81,7 @@ const FlowNode = ({ data, selected }: { data: RFNode["data"]; selected?: boolean
 interface AgentBuilderPageProps { params: Promise<{ agentId: string }> }
 
 export default function AgentBuilderPage({ params }: AgentBuilderPageProps) {
-  const { agentId } = React.use(params);
+  const { agentId } = use(params);
   const router = useRouter();
   const { toast } = useToast();
   const hydrated = useRef(false);
@@ -86,10 +90,11 @@ export default function AgentBuilderPage({ params }: AgentBuilderPageProps) {
   const saveConfig = useMutation(api.agent.UpdateAgentConfig);
   const [agentType, setAgentType] = useState<AgentType>("assistant");
   const [settings, setSettings] = useState<BuilderSettings>(DEFAULT_SETTINGS);
-  const [nodes, setNodes] = useState<RFNode[]>([{ id: "start-node", type: "default", position: { x: 280, y: 100 }, data: { label: "Start", type: "start", config: {} } }]);
+  const [nodes, setNodes] = useState<RFNode[]>(INITIAL_NODES);
   const [edges, setEdges] = useState<RFEdge[]>([]);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>("start-node");
   const [showCode, setShowCode] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [codeLanguage, setCodeLanguage] = useState<CodeLanguage>("javascript");
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [dragDropdown, setDragDropdown] = useState<{
@@ -105,13 +110,18 @@ export default function AgentBuilderPage({ params }: AgentBuilderPageProps) {
   });
 
   useEffect(() => {
-    if (!agent || hydrated.current) return;
-    const cfg = (agent.config || {}) as AgentConfig;
-    if (cfg.nodes?.length) { setNodes(cfg.nodes); setSelectedNodeId(cfg.nodes[0]?.id || null); }
+    if (!agent) return;
+    const cfg = agent.config || {};
+    if (cfg.nodes?.length) setNodes(cfg.nodes);
+    else setNodes(INITIAL_NODES);
     if (cfg.edges) setEdges(cfg.edges);
     if (cfg.agentType) setAgentType(cfg.agentType);
     if (cfg.settings) setSettings((c) => ({ ...c, ...cfg.settings })); else if (agent.name) setSettings((c) => ({ ...c, agentName: agent.name }));
     hydrated.current = true;
+  }, [agent]);
+
+  useEffect(() => {
+    console.log("Agent data", agent);
   }, [agent]);
 
   const selectedNode = useMemo(() => nodes.find((n) => n.id === selectedNodeId) || null, [nodes, selectedNodeId]);
@@ -238,7 +248,7 @@ export default function AgentBuilderPage({ params }: AgentBuilderPageProps) {
         <div className="flex items-center gap-4"><Button variant="ghost" size="icon" onClick={() => router.push("/dashboard")}><ArrowLeft className="h-5 w-5" /></Button><div><h1 className="text-2xl font-bold">{settings.agentName || agent?.name || "Agent Builder"}</h1><p className="text-sm text-slate-500">Agent Builder</p></div></div>
         <div className="flex items-center gap-3">
           <Button variant="outline" className="gap-2 rounded-xl" onClick={() => setShowCode((v) => !v)}><Settings2 className="h-4 w-4" />{showCode ? "Hide Code" : "Custom Code"}</Button>
-          <Button variant="outline" className="gap-2 rounded-xl" onClick={() => router.push(`/dashboard/chats/${agentId}`)}><Eye className="h-4 w-4" />Preview</Button>
+          <Button variant="outline" className="gap-2 rounded-xl" onClick={() => setShowPreview(true)}><Eye className="h-4 w-4" />Preview</Button>
           <Button className="gap-2 rounded-xl bg-slate-950 text-white hover:bg-slate-800" onClick={() => void manualSave()}><Check className="h-4 w-4" />Save</Button>
         </div>
       </div></div>
@@ -247,13 +257,52 @@ export default function AgentBuilderPage({ params }: AgentBuilderPageProps) {
         <aside className="border-r border-slate-200 bg-white"><div className="h-[calc(100vh-89px)] overflow-y-auto p-5">
           <div className="mb-6"><h2 className="text-2xl font-bold">Toolbox</h2><p className="mt-2 text-sm text-slate-500">Click tools to add them to the canvas.</p></div>
           <div className="space-y-3">{TOOLS.map((tool) => <button key={tool.type} type="button" draggable={tool.type !== 'edge'} onDragStart={(e) => handleToolDragStart(e, tool.type)} onClick={() => addTool(tool)} className="w-full rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-sky-300 hover:shadow-md"><div className="flex items-start gap-4"><div className={`rounded-2xl border px-3 py-3 ${tool.accent}`}><tool.icon className="h-5 w-5" /></div><div><div className="text-lg font-semibold">{tool.label}</div><div className="text-sm text-slate-500">{tool.description}</div></div></div></button>)}</div>
-          <div className="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-4">
-            <div className="text-sm text-slate-500">Custom tools have been hidden per the new design (for query/custom-tool removal).</div>
+          <div className="mt-8 space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-4">
+            <div>
+              <div className="text-lg font-semibold text-slate-900">Custom Tools</div>
+              <p className="mt-1 text-sm text-slate-500">Add your real-time APIs here, then drop them into the canvas. Generated code will expose them in terminal chat.</p>
+            </div>
+            <CustomToolsManager
+              agentId={agentId}
+              triggerButton={
+                <Button type="button" className="w-full rounded-2xl bg-slate-950 text-white hover:bg-slate-800">
+                  <Wrench className="h-4 w-4" />
+                  Manage Custom Tools
+                </Button>
+              }
+            />
+            <div className="space-y-3">
+              {customTools.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-500">
+                  No custom APIs added yet. Add tools like Joke, Weather, Currency, Country, Crypto, IP, Time, or Number Facts.
+                </div>
+              ) : (
+                customTools.map((tool) => (
+                  <button
+                    key={tool.id}
+                    type="button"
+                    onClick={() => addTool(apiCard, tool)}
+                    className="w-full rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-sky-300 hover:shadow-md"
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="rounded-2xl border bg-cyan-100 px-3 py-3 text-cyan-700 border-cyan-200">
+                        <Globe className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-base font-semibold text-slate-900">{tool.name}</div>
+                        <div className="text-sm text-slate-500">{tool.description}</div>
+                        <div className="mt-2 truncate text-xs text-slate-400">{tool.apiUrl || "No URL configured"}</div>
+                      </div>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
           </div>
         </div></aside>
 
         <main className="relative overflow-hidden bg-[#f8fafc]"><div className="relative h-[calc(100vh-89px)]">
-          <ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes} fitView onNodesChange={(c) => setNodes((n) => applyNodeChanges(c, n))} onEdgesChange={(c) => setEdges((e) => applyEdgeChanges(c, e))} onConnect={(connection: Connection) => setEdges((e) => addEdge({ ...connection, animated: true, type: "smoothstep", style: { stroke: "#0ea5e9", strokeWidth: 3 } }, e))} onNodeClick={(_, node) => setSelectedNodeId(node.id)} onDrop={handleDropOnCanvas} onDragOver={handleDragOverCanvas}>
+          <ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes} fitView onNodesChange={(c: any) => setNodes((n) => applyNodeChanges(c, n))} onEdgesChange={(c: any) => setEdges((e) => applyEdgeChanges(c, e))} onConnect={(connection: Connection) => setEdges((e) => addEdge({ ...connection, animated: true, type: "smoothstep", style: { stroke: "#0ea5e9", strokeWidth: 3 } }, e))} onNodeClick={(_event: any, node: RFNode) => setSelectedNodeId(node.id)} onDrop={handleDropOnCanvas} onDragOver={handleDragOverCanvas}>
             <Background variant={BackgroundVariant.Dots} gap={18} size={1.5} color="#d7deea" />
             <Controls />
             <MiniMap pannable zoomable />
@@ -393,7 +442,7 @@ export default function AgentBuilderPage({ params }: AgentBuilderPageProps) {
               <div className="space-y-2"><label className="text-sm font-medium text-slate-700">Label</label><Input value={String(selectedNode.data.label || "")} onChange={(e) => patchSelected((node) => ({ ...node, data: { ...node.data, label: e.target.value } }))} className="rounded-2xl" /></div>
               {['api'].includes(String(selectedNode.data.type)) && <>
                 <div className="space-y-2"><label className="text-sm font-medium text-slate-700">API Call Name</label><Input value={String(selectedNode.data.config?.apiCallName || "")} onChange={(e) => patchSelected((node) => ({ ...node, data: { ...node.data, config: { ...node.data.config, apiCallName: e.target.value } } }))} placeholder="Enter API call name" className="rounded-2xl" /></div>
-                <div className="space-y-2"><label className="text-sm font-medium text-slate-700">API URL</label><Input value={String(selectedNode.data.config?.apiUrl || "")} onChange={(e) => patchSelected((node) => ({ ...node, data: { ...node.data, config: { ...node.data.config, apiUrl: e.target.value } } }))} className="rounded-2xl" /></div>
+                <div className="space-y-2"><label className="text-sm font-medium text-slate-700">API URL</label><Input value={String(selectedNode.data.config?.apiUrl || "")} onChange={(e) => patchSelected((node) => ({ ...node, data: { ...node.data, config: { ...node.data.config, apiUrl: e.target.value, method: shouldForceGetMethod(e.target.value) ? "GET" : (node.data.config?.method || "GET") } } }))} className="rounded-2xl" /></div>
                 <div className="space-y-2"><label className="text-sm font-medium text-slate-700">Method</label><Select value={String(selectedNode.data.config?.method || "GET")} onValueChange={(v) => patchSelected((node) => ({ ...node, data: { ...node.data, config: { ...node.data.config, method: v } } }))}><SelectTrigger className="rounded-2xl"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="GET">GET</SelectItem><SelectItem value="POST">POST</SelectItem><SelectItem value="PUT">PUT</SelectItem><SelectItem value="DELETE">DELETE</SelectItem></SelectContent></Select></div>
                 <div className="space-y-2"><label className="text-sm font-medium text-slate-700">API Key (Optional)</label><Input type="password" value={String(selectedNode.data.config?.apiKey || "")} onChange={(e) => patchSelected((node) => ({ ...node, data: { ...node.data, config: { ...node.data.config, apiKey: e.target.value } } }))} placeholder="Enter API Key" className="rounded-2xl" /></div>
               </>}
@@ -420,6 +469,26 @@ export default function AgentBuilderPage({ params }: AgentBuilderPageProps) {
         onClose={handleDragDropdownClose}
         onConfirm={handleDragDropdownConfirm}
       />
+      <AgentTestModal
+        open={showPreview}
+        onOpenChange={setShowPreview}
+        agentId={agentId}
+        agentName={settings.agentName || agent?.name || "Agent"}
+        nodes={nodes.map((node) => ({
+          id: node.id,
+          type: String(node.data?.type || "workflow"),
+          position: node.position,
+          config: (node.data?.config as Record<string, any> | undefined) || {},
+        }))}
+      />
     </div>
   );
 }
+
+const INITIAL_NODES: RFNode[] = [{
+  id: "start-node",
+  type: "default",
+  position: { x: 280, y: 100 },
+  data: { label: "Start", type: "start", config: {} }
+}];
+

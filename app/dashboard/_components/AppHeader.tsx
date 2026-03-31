@@ -1,9 +1,19 @@
 // AppHeader.tsx
+"use client"
 
 import { UserButton } from "@clerk/nextjs"
 import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import NotificationBell from "./NotificationBell"
+import { isClerkEnabled } from "@/lib/authMode"
+
+function GuestUserBadge() {
+  return (
+    <div className="flex h-10 min-w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 px-3 text-sm font-medium text-white">
+      Guest
+    </div>
+  )
+}
 
 export default function AppHeader() {
   return (
@@ -28,7 +38,7 @@ export default function AppHeader() {
         <div className="flex items-center gap-4">
           <NotificationBell />
           <div className="h-8 w-[1px] bg-white/20"></div>
-          <UserButton />
+          {isClerkEnabled ? <UserButton /> : <GuestUserBadge />}
         </div>
       </div>
     </header>

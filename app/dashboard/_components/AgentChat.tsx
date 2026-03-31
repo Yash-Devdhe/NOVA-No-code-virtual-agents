@@ -44,6 +44,45 @@ const baseTools = [
   { id: "custom", name: "Custom Tool", description: "User-defined dashboard tool" },
 ];
 
+function looksLikeLocationPrompt(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return false;
+  if (trimmed.includes(",")) return true;
+  return /^[A-Za-z\s.-]{2,},?\s+[A-Za-z\s.-]{2,}$/.test(trimmed);
+}
+
+function extractCurrencyCode(value: string) {
+  const trimmed = value.trim().toUpperCase();
+  if (/^[A-Z]{3}$/.test(trimmed)) return trimmed;
+  const match = trimmed.match(/\b[A-Z]{3}\b/);
+  return match?.[0] || null;
+}
+
+function extractIpAddress(value: string) {
+  return value.match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/)?.[0] || null;
+}
+
+function extractNumberValue(value: string) {
+  return value.match(/\b\d+\b/)?.[0] || null;
+}
+
+function looksLikeTimezonePrompt(value: string) {
+  return /[A-Za-z_]+\/[A-Za-z_]+(?:\/[A-Za-z_]+)?/.test(value.trim());
+}
+
+function looksLikeCryptoPrompt(value: string) {
+  return /(bitcoin|ethereum|dogecoin|solana|ripple|cardano|tron|crypto)/i.test(value);
+}
+
+function looksLikeJokePrompt(value: string) {
+  return /\bjoke\b|\bfunny\b/i.test(value);
+}
+
+function looksLikeCountryPrompt(value: string) {
+  const trimmed = value.trim();
+  return /^[A-Za-z\s-]{3,}$/.test(trimmed) && !looksLikeLocationPrompt(trimmed);
+}
+
 export default function AgentChat({ agentId, className = "" }: AgentChatProps) {
   const { userDetail } = useContext(UserDetailContext);
   const { isAuthenticated } = useConvexAuth();
@@ -105,6 +144,92 @@ export default function AgentChat({ agentId, className = "" }: AgentChatProps) {
       return Boolean(apiUrl) && Boolean(label) && normalized.includes(label);
     });
 
+    const locationAwareApiNode = getConfigNodes().find((node) => {
+      const config = (node.data?.config || node.config || {}) as Record<string, unknown>;
+      const label = String(node.data?.label || config.name || "").toLowerCase();
+      const apiUrl = String(config.apiUrl || "");
+      return (
+        Boolean(apiUrl) &&
+        (apiUrl.includes("/api/location-intel") ||
+          label.includes("weather") ||
+          label.includes("location") ||
+          label.includes("city") ||
+          label.includes("country") ||
+          label.includes("timezone"))
+      );
+    });
+
+    const locationAwareCustomTool = customTools.find((tool) =>
+      Boolean(tool.apiUrl) &&
+      ((tool.apiUrl || "").includes("/api/location-intel") ||
+        tool.name.toLowerCase().includes("weather") ||
+        tool.name.toLowerCase().includes("location") ||
+        tool.name.toLowerCase().includes("city") ||
+        tool.name.toLowerCase().includes("country"))
+    );
+
+    const currencyAwareApiNode = getConfigNodes().find((node) => {
+      const config = (node.data?.config || node.config || {}) as Record<string, unknown>;
+      const label = String(node.data?.label || config.name || "").toLowerCase();
+      const apiUrl = String(config.apiUrl || "");
+      return (
+        Boolean(apiUrl) &&
+        (apiUrl.includes("/api/currency-all") ||
+          label.includes("currency") ||
+          label.includes("exchange") ||
+          label.includes("forex"))
+      );
+    });
+
+    const currencyAwareCustomTool = customTools.find((tool) =>
+      Boolean(tool.apiUrl) &&
+      ((tool.apiUrl || "").includes("/api/currency-all") ||
+        tool.name.toLowerCase().includes("currency") ||
+        tool.name.toLowerCase().includes("exchange") ||
+        tool.name.toLowerCase().includes("forex"))
+    );
+
+    const currencyCode = extractCurrencyCode(messageText);
+    const ipAddress = extractIpAddress(messageText);
+    const numberValue = extractNumberValue(messageText);
+
+    const directRouteNode = (
+      routeFragment: string,
+      labels: string[]
+    ) =>
+      getConfigNodes().find((node) => {
+        const config = (node.data?.config || node.config || {}) as Record<string, unknown>;
+        const label = String(node.data?.label || config.name || "").toLowerCase();
+        const apiUrl = String(config.apiUrl || "");
+        return (
+          Boolean(apiUrl) &&
+          (apiUrl.includes(routeFragment) || labels.some((item) => label.includes(item)))
+        );
+      });
+
+    const directRouteTool = (
+      routeFragment: string,
+      labels: string[]
+    ) =>
+      customTools.find((tool) =>
+        Boolean(tool.apiUrl) &&
+        (((tool.apiUrl || "").includes(routeFragment) ||
+          labels.some((item) => tool.name.toLowerCase().includes(item))))
+      );
+
+    const timezoneTool = directRouteTool("/api/timezone-info", ["timezone", "time"]);
+    const timezoneNode = directRouteNode("/api/timezone-info", ["timezone", "time"]);
+    const countryTool = directRouteTool("/api/country-info", ["country"]);
+    const countryNode = directRouteNode("/api/country-info", ["country"]);
+    const cryptoTool = directRouteTool("/api/crypto-price", ["crypto", "coin"]);
+    const cryptoNode = directRouteNode("/api/crypto-price", ["crypto", "coin"]);
+    const ipTool = directRouteTool("/api/ip-location", ["ip"]);
+    const ipNode = directRouteNode("/api/ip-location", ["ip"]);
+    const jokeTool = directRouteTool("/api/random-joke", ["joke"]);
+    const jokeNode = directRouteNode("/api/random-joke", ["joke"]);
+    const numberTool = directRouteTool("/api/number-fact", ["number", "fact"]);
+    const numberNode = directRouteNode("/api/number-fact", ["number", "fact"]);
+
     const toolConfig = matchingCustomTool
       ? {
           name: matchingCustomTool.name,
@@ -125,32 +250,220 @@ export default function AgentChat({ agentId, className = "" }: AgentChatProps) {
               (matchingApiNode.data?.config || matchingApiNode.config || {}).method || "GET"
             ),
           }
+        : !matchingCustomTool && !matchingApiNode && looksLikeLocationPrompt(messageText) && locationAwareCustomTool
+          ? {
+              name: locationAwareCustomTool.name,
+              apiUrl: locationAwareCustomTool.apiUrl,
+              method: locationAwareCustomTool.method || "POST",
+            }
+          : !matchingCustomTool && !matchingApiNode && looksLikeLocationPrompt(messageText) && locationAwareApiNode
+            ? {
+                name: String(
+                  locationAwareApiNode.data?.label ||
+                  (locationAwareApiNode.data?.config || locationAwareApiNode.config || {}).name ||
+                  "Location API"
+                ),
+                apiUrl: String(
+                  (locationAwareApiNode.data?.config || locationAwareApiNode.config || {}).apiUrl || ""
+                ),
+                method: String(
+                  (locationAwareApiNode.data?.config || locationAwareApiNode.config || {}).method || "POST"
+                ),
+              }
+          : !matchingCustomTool && !matchingApiNode && currencyCode && currencyAwareCustomTool
+            ? {
+                name: currencyAwareCustomTool.name,
+                apiUrl: currencyAwareCustomTool.apiUrl,
+                method: currencyAwareCustomTool.method || "POST",
+              }
+            : !matchingCustomTool && !matchingApiNode && currencyCode && currencyAwareApiNode
+              ? {
+                  name: String(
+                    currencyAwareApiNode.data?.label ||
+                    (currencyAwareApiNode.data?.config || currencyAwareApiNode.config || {}).name ||
+                    "Currency API"
+                  ),
+                  apiUrl: String(
+                    (currencyAwareApiNode.data?.config || currencyAwareApiNode.config || {}).apiUrl || ""
+                  ),
+                  method: String(
+                    (currencyAwareApiNode.data?.config || currencyAwareApiNode.config || {}).method || "POST"
+                  ),
+                }
+              : looksLikeTimezonePrompt(messageText) && timezoneTool
+                ? {
+                    name: timezoneTool.name,
+                    apiUrl: timezoneTool.apiUrl,
+                    method: timezoneTool.method || "POST",
+                  }
+                : looksLikeTimezonePrompt(messageText) && timezoneNode
+                  ? {
+                      name: String(
+                        timezoneNode.data?.label ||
+                        (timezoneNode.data?.config || timezoneNode.config || {}).name ||
+                        "Timezone API"
+                      ),
+                      apiUrl: String(
+                        (timezoneNode.data?.config || timezoneNode.config || {}).apiUrl || ""
+                      ),
+                      method: String(
+                        (timezoneNode.data?.config || timezoneNode.config || {}).method || "POST"
+                      ),
+                    }
+                  : looksLikeCryptoPrompt(messageText) && cryptoTool
+                    ? {
+                        name: cryptoTool.name,
+                        apiUrl: cryptoTool.apiUrl,
+                        method: cryptoTool.method || "POST",
+                      }
+                    : looksLikeCryptoPrompt(messageText) && cryptoNode
+                      ? {
+                          name: String(
+                            cryptoNode.data?.label ||
+                            (cryptoNode.data?.config || cryptoNode.config || {}).name ||
+                            "Crypto API"
+                          ),
+                          apiUrl: String(
+                            (cryptoNode.data?.config || cryptoNode.config || {}).apiUrl || ""
+                          ),
+                          method: String(
+                            (cryptoNode.data?.config || cryptoNode.config || {}).method || "POST"
+                          ),
+                        }
+                      : ipAddress && ipTool
+                        ? {
+                            name: ipTool.name,
+                            apiUrl: ipTool.apiUrl,
+                            method: ipTool.method || "POST",
+                          }
+                        : ipAddress && ipNode
+                          ? {
+                              name: String(
+                                ipNode.data?.label ||
+                                (ipNode.data?.config || ipNode.config || {}).name ||
+                                "IP API"
+                              ),
+                              apiUrl: String(
+                                (ipNode.data?.config || ipNode.config || {}).apiUrl || ""
+                              ),
+                              method: String(
+                                (ipNode.data?.config || ipNode.config || {}).method || "POST"
+                              ),
+                            }
+                          : looksLikeJokePrompt(messageText) && jokeTool
+                            ? {
+                                name: jokeTool.name,
+                                apiUrl: jokeTool.apiUrl,
+                                method: jokeTool.method || "POST",
+                              }
+                            : looksLikeJokePrompt(messageText) && jokeNode
+                              ? {
+                                  name: String(
+                                    jokeNode.data?.label ||
+                                    (jokeNode.data?.config || jokeNode.config || {}).name ||
+                                    "Joke API"
+                                  ),
+                                  apiUrl: String(
+                                    (jokeNode.data?.config || jokeNode.config || {}).apiUrl || ""
+                                  ),
+                                  method: String(
+                                    (jokeNode.data?.config || jokeNode.config || {}).method || "POST"
+                                  ),
+                                }
+                              : numberValue && numberTool
+                                ? {
+                                    name: numberTool.name,
+                                    apiUrl: numberTool.apiUrl,
+                                    method: numberTool.method || "POST",
+                                  }
+                                : numberValue && numberNode
+                                  ? {
+                                      name: String(
+                                        numberNode.data?.label ||
+                                        (numberNode.data?.config || numberNode.config || {}).name ||
+                                        "Number API"
+                                      ),
+                                      apiUrl: String(
+                                        (numberNode.data?.config || numberNode.config || {}).apiUrl || ""
+                                      ),
+                                      method: String(
+                                        (numberNode.data?.config || numberNode.config || {}).method || "POST"
+                                      ),
+                                    }
+                                  : looksLikeCountryPrompt(messageText) && countryTool
+                                    ? {
+                                        name: countryTool.name,
+                                        apiUrl: countryTool.apiUrl,
+                                        method: countryTool.method || "POST",
+                                      }
+                                    : looksLikeCountryPrompt(messageText) && countryNode
+                                      ? {
+                                          name: String(
+                                            countryNode.data?.label ||
+                                            (countryNode.data?.config || countryNode.config || {}).name ||
+                                            "Country API"
+                                          ),
+                                          apiUrl: String(
+                                            (countryNode.data?.config || countryNode.config || {}).apiUrl || ""
+                                          ),
+                                          method: String(
+                                            (countryNode.data?.config || countryNode.config || {}).method || "POST"
+                                          ),
+                                        }
         : null;
 
     if (!toolConfig?.apiUrl) {
       return null;
     }
 
-    const response = await fetch("/api/custom-api", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        url: toolConfig.apiUrl,
-        method: toolConfig.method,
-        body: {
-          prompt: messageText,
-          input: messageText,
-        },
-        contentType: "application/json",
-      }),
-    });
+    const response = toolConfig.apiUrl.startsWith("/")
+      ? await fetch(toolConfig.apiUrl, {
+          method: toolConfig.method || "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            prompt: messageText,
+            input: messageText,
+            city: messageText,
+            location: messageText,
+            currency: currencyCode,
+            base: currencyCode,
+            timezone: messageText,
+            country: messageText,
+            coin: messageText,
+            ip: ipAddress,
+            number: numberValue,
+          }),
+        })
+      : await fetch("/api/custom-api", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            url: toolConfig.apiUrl,
+            method: toolConfig.method,
+            body: {
+              prompt: messageText,
+              input: messageText,
+              city: messageText,
+              location: messageText,
+              currency: currencyCode,
+              base: currencyCode,
+              timezone: messageText,
+              country: messageText,
+              coin: messageText,
+              ip: ipAddress,
+              number: numberValue,
+            },
+            contentType: "application/json",
+          }),
+        });
 
     const result = await response.json();
     if (!response.ok) {
       throw new Error(result.error || `Failed to call ${toolConfig.name}`);
     }
 
-    return `Tool: ${toolConfig.name}\n${JSON.stringify(result.data ?? result, null, 2)}`;
+    const payload = result.data ?? result;
+    return `Tool: ${toolConfig.name}\n${payload.text || JSON.stringify(payload, null, 2)}`;
   };
 
   const getAgentReply = async (messageText: string) => {

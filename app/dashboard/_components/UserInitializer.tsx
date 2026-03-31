@@ -1,29 +1,62 @@
 "use client"
 
-import { useUser } from "@clerk/nextjs"
 import { useContext, useEffect, useState } from "react"
-import { UserDetailContext } from "@/context/UserDetailsContext"
 import { useMutation } from "convex/react"
-import { api } from "@/convex/_generated/api"
 import { useToast } from "@/components/ui/use-toast"
+import { UserDetailContext } from "@/context/UserDetailsContext"
+import { api } from "@/convex/_generated/api"
+import { localGuestProfile, isClerkEnabled } from "@/lib/authMode"
 
-export default function UserInitializer() {
+function GuestUserInitializer() {
+  const { userDetail, setUserDetail } = useContext(UserDetailContext)
+  const [isInitialized, setIsInitialized] = useState(false)
+  const createUserMutation = useMutation(api.user.CreateNewUser)
+  const { toast } = useToast()
+
+  useEffect(() => {
+    if (isInitialized || userDetail?._id) {
+      setIsInitialized(true)
+      return
+    }
+
+    const initializeUser = async () => {
+      try {
+        const userData = await createUserMutation(localGuestProfile)
+        if (userData && userData._id) {
+          setUserDetail({
+            _id: userData._id as string,
+            name: userData.name,
+            email: userData.email,
+            token: userData.token,
+          })
+          setIsInitialized(true)
+        }
+      } catch (error) {
+        toast({
+          title: "Guest initialization error",
+          description: error instanceof Error ? error.message : "Failed to initialize guest mode",
+          variant: "destructive",
+        })
+      }
+    }
+
+    void initializeUser()
+  }, [createUserMutation, isInitialized, setUserDetail, toast, userDetail?._id])
+
+  return null
+}
+
+function ClerkUserInitializer() {
+  const { useUser } = require("@clerk/nextjs") as typeof import("@clerk/nextjs")
   const { user, isLoaded } = useUser()
   const { userDetail, setUserDetail } = useContext(UserDetailContext)
   const [isInitialized, setIsInitialized] = useState(false)
   const { toast } = useToast()
-
-  // Create user in Convex
   const createUserMutation = useMutation(api.user.CreateNewUser)
 
   useEffect(() => {
-    // Wait for Clerk to load and user to be available
-    if (!isLoaded || !user) return
-    
-    // If already initialized, don't run again
-    if (isInitialized) return
-    
-    // Also check if we already have userDetail
+    if (!isLoaded || !user || isInitialized) return
+
     if (userDetail?._id) {
       setIsInitialized(true)
       return
@@ -43,11 +76,9 @@ export default function UserInitializer() {
           return
         }
 
-        // Create or get user from Convex
-        // User already exists or create silently - no notifications/toasts
         const userData = await createUserMutation({
-          name: name,
-          email: email
+          name,
+          email,
         })
 
         if (userData && userData._id) {
@@ -55,7 +86,7 @@ export default function UserInitializer() {
             _id: userData._id as string,
             name: userData.name,
             email: userData.email,
-            token: userData.token
+            token: userData.token,
           })
           setIsInitialized(true)
         }
@@ -68,9 +99,12 @@ export default function UserInitializer() {
       }
     }
 
-    initializeUser()
-  }, [isLoaded, user, isInitialized, createUserMutation, setUserDetail, userDetail, toast])
+    void initializeUser()
+  }, [createUserMutation, isInitialized, isLoaded, setUserDetail, toast, user, userDetail?._id])
 
-  // This component doesn't render anything
   return null
+}
+
+export default function UserInitializer() {
+  return isClerkEnabled ? <ClerkUserInitializer /> : <GuestUserInitializer />
 }

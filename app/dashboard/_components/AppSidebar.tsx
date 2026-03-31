@@ -32,10 +32,6 @@ import {
 import { Button } from '@/components/ui/button'
 import { UserDetailContext } from '@/context/UserDetailsContext'
 import { usePathname } from 'next/navigation'
-import { useConvex } from 'convex/react'
-import { api } from '@/convex/_generated/api'
-import { Id } from '@/convex/_generated/dataModel'
-import type { Agent } from '../../../types/AgentType'
 
 type MenuOption = {
   name: string
@@ -54,8 +50,6 @@ const Menuoptions: MenuOption[] = [
 
 export function AppSidebar() {
   const { open, toggleSidebar } = useSidebar()
-  const [agentList, setAgentList] = useState<Agent[]>([])
-  const convex = useConvex()
 
   const context = useContext(UserDetailContext)
   if (!context) {
@@ -64,19 +58,6 @@ export function AppSidebar() {
 
   const { userDetail } = context
   const path = usePathname()
-
-  useEffect(() => {
-    if (!userDetail?._id) return
-
-    const loadAgents = async () => {
-      const result = await convex.query(api.agent.GetUserAgents, {
-        userId: userDetail._id as Id<'UserTable'>,
-      })
-      setAgentList(result || [])
-    }
-
-    loadAgents()
-  }, [userDetail?._id, convex])
 
   return (
     <Sidebar collapsible="icon">
@@ -123,28 +104,6 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
-        {open && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Your Agents</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {agentList.length === 0 && (
-                  <p className="px-2 text-xs text-muted-foreground">No agents yet</p>
-                )}
-                {agentList.slice(0, 8).map((agent) => (
-                  <SidebarMenuItem key={agent._id}>
-                    <SidebarMenuButton asChild>
-                      <Link href={`/agent-builder/${agent.agentId}`}>
-                        <span className="truncate">{agent.name}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
       </SidebarContent>
 
       <SidebarFooter className="mb-10">
