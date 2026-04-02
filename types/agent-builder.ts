@@ -6,6 +6,12 @@ export interface CustomTool {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   paramsSchema?: any;
   apiKey?: string;
+  apiKeyConfig?: {
+    useApiKey: boolean;
+    apiKey: string;
+    authType: 'bearer' | 'api-key' | 'query' | 'custom';
+    customHeaderName?: string;
+  };
 }
 
 export interface ToolNode {

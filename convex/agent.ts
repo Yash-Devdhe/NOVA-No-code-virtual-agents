@@ -104,6 +104,11 @@ export const UpdateAgentConfig = mutation({
     }
     
     await ctx.db.patch(agent._id, {
+      name:
+        typeof args.config?.settings?.agentName === "string" &&
+        args.config.settings.agentName.trim()
+          ? args.config.settings.agentName.trim()
+          : agent.name,
       config: args.config,
       updatedAt: Date.now(),
     });
@@ -124,7 +129,18 @@ export const AddCustomTool = mutation({
       apiUrl: v.optional(v.string()),
       method: v.optional(v.union(v.literal('GET'), v.literal('POST'), v.literal('PUT'), v.literal('DELETE'))),
       paramsSchema: v.optional(v.any()),
-      apiKey: v.optional(v.string())
+      apiKey: v.optional(v.string()),
+      apiKeyConfig: v.optional(v.object({
+        useApiKey: v.boolean(),
+        apiKey: v.string(),
+        authType: v.union(
+          v.literal("bearer"),
+          v.literal("api-key"),
+          v.literal("query"),
+          v.literal("custom")
+        ),
+        customHeaderName: v.optional(v.string()),
+      })),
     })
   },
   handler: async (ctx, args) => {
@@ -200,7 +216,18 @@ export const UpdateCustomTool = mutation({
         )
       ),
       paramsSchema: v.optional(v.any()),
-      apiKey: v.optional(v.string())
+      apiKey: v.optional(v.string()),
+      apiKeyConfig: v.optional(v.object({
+        useApiKey: v.boolean(),
+        apiKey: v.string(),
+        authType: v.union(
+          v.literal("bearer"),
+          v.literal("api-key"),
+          v.literal("query"),
+          v.literal("custom")
+        ),
+        customHeaderName: v.optional(v.string()),
+      })),
     }),
   },
   handler: async (ctx, args) => {

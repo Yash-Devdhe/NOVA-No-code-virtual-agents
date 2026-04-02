@@ -22,7 +22,7 @@ import AgentTestModal from "../../dashboard/_components/AgentTestModal";
 
 type AgentType = "assistant" | "workflow" | "custom";
 type OutputFormat = "text" | "json";
-type CodeLanguage = "javascript" | "typescript";
+type CodeLanguage = "javascript" | "typescript" | "python";
 type BuilderSettings = { agentName: string; instructions: string; includeChatHistory: boolean; model: string; outputFormat: OutputFormat };
 type AgentConfig = { nodes?: RFNode[]; edges?: RFEdge[]; agentType?: AgentType; settings?: BuilderSettings };
 type NodeKind = RFNode["data"]["type"];
@@ -57,7 +57,15 @@ function makeNode(tool: Tool, count: number, customTool?: CustomTool, position?:
       label,
       type: customTool ? "custom" : tool.type,
       config: customTool
-        ? { toolId: customTool.id, apiUrl: customTool.apiUrl || "", method: customTool.method || "GET", paramsSchema: customTool.paramsSchema || {} }
+        ? {
+            toolId: customTool.id,
+            apiUrl: customTool.apiUrl || "",
+            method: customTool.method || "GET",
+            paramsSchema: customTool.paramsSchema || {},
+            apiKey: customTool.apiKey || "",
+            apiKeyConfig: customTool.apiKeyConfig,
+            apiCallName: customTool.name,
+          }
         : { ...(tool.config || {}) },
     },
   };
@@ -130,9 +138,9 @@ export default function AgentBuilderPage({ params }: AgentBuilderPageProps) {
 
   const persist = useCallback(async () => {
     setSaveState("saving");
-    await saveConfig({ agentId, config: { nodes, edges, agentType, settings, generatedCode } });
+    await saveConfig({ agentId, config: { nodes, edges, agentType, settings } });
     setSaveState("saved");
-  }, [agentId, agentType, edges, generatedCode, nodes, saveConfig, settings]);
+  }, [agentId, agentType, edges, nodes, saveConfig, settings]);
 
   useEffect(() => {
     if (!agent || !hydrated.current) return;
@@ -230,7 +238,7 @@ export default function AgentBuilderPage({ params }: AgentBuilderPageProps) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${slug(settings.agentName || agent?.name || "nova-agent")}.${codeLanguage === "typescript" ? "ts" : "js"}`;
+    a.download = `${slug(settings.agentName || agent?.name || "nova-agent")}.${codeLanguage === "typescript" ? "ts" : codeLanguage === "python" ? "py" : "js"}`;
     a.click();
     URL.revokeObjectURL(url);
   }, [agent?.name, codeLanguage, generatedCode, settings.agentName]);
@@ -309,9 +317,9 @@ export default function AgentBuilderPage({ params }: AgentBuilderPageProps) {
           </ReactFlow>
           {showCode && <div className="absolute inset-y-4 right-4 z-20 w-[60%] max-w-4xl overflow-hidden rounded-3xl border border-slate-700 bg-slate-900 text-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 px-5 py-4">
-              <div className="flex items-center gap-4"><div className="flex gap-2"><span className="h-3 w-3 rounded-full bg-rose-500" /><span className="h-3 w-3 rounded-full bg-amber-400" /><span className="h-3 w-3 rounded-full bg-emerald-500" /></div><div><div className="font-semibold">custom-agent.{codeLanguage === "typescript" ? "ts" : "js"}</div><div className="text-sm text-slate-400">Live generated runtime code</div></div></div>
+              <div className="flex items-center gap-4"><div className="flex gap-2"><span className="h-3 w-3 rounded-full bg-rose-500" /><span className="h-3 w-3 rounded-full bg-amber-400" /><span className="h-3 w-3 rounded-full bg-emerald-500" /></div><div><div className="font-semibold">custom-agent.{codeLanguage === "typescript" ? "ts" : codeLanguage === "python" ? "py" : "js"}</div><div className="text-sm text-slate-400">Live generated runtime code</div></div></div>
               <div className="flex items-center gap-2">
-                <Select value={codeLanguage} onValueChange={(v) => setCodeLanguage(v as CodeLanguage)}><SelectTrigger className="w-[160px] border-slate-700 bg-slate-800 text-white"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="javascript">JavaScript</SelectItem><SelectItem value="typescript">TypeScript</SelectItem></SelectContent></Select>
+                <Select value={codeLanguage} onValueChange={(v) => setCodeLanguage(v as CodeLanguage)}><SelectTrigger className="w-[160px] border-slate-700 bg-slate-800 text-white"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="javascript">JavaScript</SelectItem><SelectItem value="typescript">TypeScript</SelectItem><SelectItem value="python">Python</SelectItem></SelectContent></Select>
                 <Button variant="outline" className="border-slate-700 bg-slate-800 text-white hover:bg-slate-700" onClick={() => setShowCode(true)}><RefreshCw className="h-4 w-4" />Generate</Button>
                 <Button variant="ghost" size="icon" className="text-slate-300 hover:bg-slate-800 hover:text-white" onClick={() => void copyCode()}><Copy className="h-4 w-4" /></Button>
                 <Button variant="ghost" size="icon" className="text-slate-300 hover:bg-slate-800 hover:text-white" onClick={downloadCode}><Download className="h-4 w-4" /></Button>
@@ -320,7 +328,7 @@ export default function AgentBuilderPage({ params }: AgentBuilderPageProps) {
             </div>
             <div className="grid h-[calc(100%-73px)] grid-rows-[1fr_180px]">
               <div className="overflow-auto px-6 py-5"><pre className="whitespace-pre-wrap font-mono text-sm leading-6 text-slate-100">{generatedCode}</pre></div>
-              <div className="border-t border-slate-800 bg-slate-950/60 px-6 py-5"><div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-300"><Braces className="h-4 w-4" />Available runtime surfaces</div><div className="grid grid-cols-2 gap-3 text-sm text-slate-300"><div>`runAgent(prompt)` returns the workflow result and model reply.</div><div>`OPENAI_API_KEY` enables live model output.</div><div>API and custom tools execute with native `fetch`.</div><div>Download or copy the file and run it in Node 20+.</div></div></div>
+              <div className="border-t border-slate-800 bg-slate-950/60 px-6 py-5"><div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-300"><Braces className="h-4 w-4" />Available runtime surfaces</div><div className="grid grid-cols-2 gap-3 text-sm text-slate-300"><div>{codeLanguage === "python" ? "`run_agent(prompt)` returns the live tool reply." : "`runAgent(prompt)` returns the active agent reply and workflow result."}</div><div>`OPENAI_API_KEY` remains optional for any separate LLM usage.</div><div>API and custom tools execute with live HTTP requests.</div><div>{codeLanguage === "python" ? "Download and run with Python 3.10+." : "Download or copy the file and run it in Node 20+."}</div></div></div>
             </div>
           </div>}
           <div className="pointer-events-none absolute bottom-4 left-4 rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm shadow-sm backdrop-blur"><div className="font-semibold text-slate-900">{nodes.length} nodes · {edges.length} connections</div><div className="text-slate-500">Save state: {saveState}</div></div>
@@ -329,7 +337,7 @@ export default function AgentBuilderPage({ params }: AgentBuilderPageProps) {
         <aside className="border-l border-slate-200 bg-white"><div className="h-[calc(100vh-89px)] overflow-y-auto p-5">
           <div className="mb-6"><h2 className="text-4xl font-bold tracking-tight">My Agent</h2><p className="mt-2 text-sm text-slate-500">Configure behavior, tools, and exported code.</p></div>
           <Tabs defaultValue="settings" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 rounded-2xl bg-slate-100 p-1"><TabsTrigger value="settings" className="rounded-xl">Settings</TabsTrigger><TabsTrigger value="api-keys" className="rounded-xl">API Keys</TabsTrigger><TabsTrigger value="limits" className="rounded-xl">Limits</TabsTrigger></TabsList>
+            <TabsList className="grid w-full grid-cols-2 rounded-2xl bg-slate-100 p-1"><TabsTrigger value="settings" className="rounded-xl">Settings</TabsTrigger><TabsTrigger value="api-keys" className="rounded-xl">API Keys</TabsTrigger></TabsList>
             <TabsContent value="settings" className="mt-6 space-y-6">
               <div className="space-y-2"><label className="text-sm font-medium text-slate-700">Agent Name</label><Input value={settings.agentName} onChange={(e) => setSettings((c) => ({ ...c, agentName: e.target.value }))} placeholder="Welcome Agent" className="h-12 rounded-2xl" /></div>
               <div className="space-y-2"><label className="text-sm font-medium text-slate-700">Instructions</label><Textarea value={settings.instructions} onChange={(e) => setSettings((c) => ({ ...c, instructions: e.target.value }))} placeholder="Describe how the agent should behave." className="min-h-[120px] rounded-2xl" /></div>
@@ -434,7 +442,6 @@ export default function AgentBuilderPage({ params }: AgentBuilderPageProps) {
                 </div>
               </div>
             </TabsContent>
-            <TabsContent value="limits" className="mt-6"><div className="space-y-3 rounded-2xl border border-slate-200 p-4 text-sm text-slate-600"><div>Canvas nodes: {nodes.length}</div><div>Connections: {edges.length}</div><div>Generated code size: {generatedCode.length.toLocaleString()} characters</div></div></TabsContent>
           </Tabs>
           <div className="mt-8 rounded-3xl border border-slate-200 p-4">
             <div className="mb-4 flex items-center justify-between"><div className="font-semibold text-slate-900">Selected Tool</div>{selectedNode && selectedNode.id !== "start-node" && <Button variant="ghost" size="sm" className="text-rose-600 hover:text-rose-700" onClick={removeSelected}>Remove</Button>}</div>

@@ -13,7 +13,7 @@ const DashboardProvider = ({ children }: { children: ReactNode }) => {
       <div className="flex flex-col h-screen w-full">
         
         {/* Header sits at the very top, outside the SidebarProvider */}
-        <AppHeader />
+        <AppHeader initialUser={null} />
 
         <SidebarProvider defaultOpen={true}>
           <div className="flex flex-1 overflow-hidden">

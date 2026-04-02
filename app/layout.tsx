@@ -4,7 +4,8 @@ import "./globals.css";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 import { ClerkProvider } from '@clerk/nextjs'
 import { Provider } from "@radix-ui/react-tooltip";
-import { isClerkEnabled } from "@/lib/authMode";
+import { clerkPublishableKey, isClerkEnabled } from "@/lib/authMode";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "NOVA: No Code Virtual Agents",
@@ -20,6 +21,7 @@ export default function RootLayout({
     <ConvexClientProvider>
       <Provider>
         {children}
+        <Toaster richColors position="top-right" />
       </Provider>
     </ConvexClientProvider>
   );
@@ -29,7 +31,7 @@ export default function RootLayout({
       <body className={outfit.className} >
         {isClerkEnabled ? (
           <ClerkProvider
-            publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}
+            publishableKey={clerkPublishableKey}
           >
             {content}
           </ClerkProvider>

@@ -18,7 +18,7 @@ const DashboardProvider = ({ children }: { children: ReactNode }) => {
           <AppSidebar />
           
           <main className="flex flex-col flex-1 overflow-hidden">
-            <AppHeader />
+            <AppHeader initialUser={null} />
             <div className="p-6 flex-1 overflow-y-auto">
                {children}
             </div>

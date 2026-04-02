@@ -7,12 +7,10 @@ const AiAgentTab = () => {
       <Tabs defaultValue="myagent" className="w-full">
         <TabsList>
           <TabsTrigger value="myagent">My Agents</TabsTrigger>
-          <TabsTrigger value="template">Templates</TabsTrigger>
         </TabsList>
         <TabsContent value="myagent">
           <MyAgents />
         </TabsContent>
-        <TabsContent value="template">Templates</TabsContent>
       </Tabs>
     </div>
   );

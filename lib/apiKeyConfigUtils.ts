@@ -6,8 +6,19 @@
 interface ApiKeyConfig {
   useApiKey: boolean;
   apiKey: string;
+  authType?: 'bearer' | 'api-key' | 'query' | 'custom';
+  customHeaderName?: string;
   headerType?: 'bearer' | 'api-key' | 'custom';
   keyName?: string;
+}
+
+function getNormalizedAuthType(config?: ApiKeyConfig): 'bearer' | 'api-key' | 'query' | 'custom' {
+  const authType = config?.authType || config?.headerType || 'bearer';
+  return authType === 'query' ? 'query' : authType;
+}
+
+function getNormalizedHeaderName(config?: ApiKeyConfig): string | undefined {
+  return config?.customHeaderName || config?.keyName;
 }
 
 /**
@@ -56,8 +67,13 @@ export function buildAuthHeaders(config: ApiKeyConfig): Record<string, string> {
   const headers: Record<string, string> = {};
 
   if (config.useApiKey && config.apiKey) {
-    const headerName = getAuthHeaderName(config.headerType, config.keyName);
-    const headerValue = getAuthHeaderValue(config.apiKey, config.headerType);
+    const authType = getNormalizedAuthType(config);
+    if (authType === 'query') {
+      return headers;
+    }
+
+    const headerName = getAuthHeaderName(authType, getNormalizedHeaderName(config));
+    const headerValue = getAuthHeaderValue(config.apiKey, authType);
 
     if (headerName && headerValue) {
       headers[headerName] = headerValue;
@@ -106,15 +122,16 @@ export function validateApiKeyConfig(config: ApiKeyConfig | undefined): {
     };
   }
 
-  const validHeaderTypes = ['bearer', 'api-key', 'custom'];
-  if (config.headerType && !validHeaderTypes.includes(config.headerType)) {
+  const authType = getNormalizedAuthType(config);
+  const validHeaderTypes = ['bearer', 'api-key', 'custom', 'query'];
+  if (authType && !validHeaderTypes.includes(authType)) {
     return {
       valid: false,
-      error: `Invalid header type: ${config.headerType}`,
+      error: `Invalid header type: ${authType}`,
     };
   }
 
-  if (config.headerType === 'custom' && (!config.keyName || !config.keyName.trim())) {
+  if (authType === 'custom' && (!getNormalizedHeaderName(config) || !getNormalizedHeaderName(config)?.trim())) {
     return {
       valid: false,
       error: 'Custom header name is required for custom authentication type',
@@ -133,8 +150,8 @@ export function createDefaultApiKeyConfig(
   return {
     useApiKey,
     apiKey: '',
-    headerType: 'bearer',
-    keyName: '',
+    authType: 'bearer',
+    customHeaderName: '',
   };
 }
 
@@ -173,8 +190,8 @@ export function extractApiKeyConfig(data: Record<string, any>): ApiKeyConfig {
     return {
       useApiKey: !!data.includeApiKey,
       apiKey: data.apiKey || '',
-      headerType: data.headerType || 'bearer',
-      keyName: data.keyName || '',
+      authType: data.authType || data.headerType || 'bearer',
+      customHeaderName: data.customHeaderName || data.keyName || '',
     };
   }
 
@@ -191,8 +208,8 @@ export function formatApiKeyConfigForLog(config: ApiKeyConfig | undefined): obje
 
   return {
     apiKeyConfigured: true,
-    headerType: config.headerType || 'bearer',
-    hasCustomKey: !!config.keyName,
+    headerType: getNormalizedAuthType(config),
+    hasCustomKey: !!getNormalizedHeaderName(config),
     keyLength: config.apiKey?.length || 0,
   };
 }
@@ -261,7 +278,7 @@ export function fromEnvironmentVariable(
   return {
     useApiKey: true,
     apiKey: envValue,
-    headerType,
+    authType: headerType,
   };
 }
 
@@ -272,8 +289,8 @@ export function sanitizeApiKeyConfig(config: ApiKeyConfig): ApiKeyConfig {
   return {
     useApiKey: config.useApiKey,
     apiKey: config.apiKey ? '***REDACTED***' : '',
-    headerType: config.headerType,
-    keyName: config.keyName,
+    authType: getNormalizedAuthType(config),
+    customHeaderName: getNormalizedHeaderName(config),
   };
 }
 
@@ -289,12 +306,17 @@ export function getHeaderPreview(config: ApiKeyConfig): string {
     return 'API key not set';
   }
 
-  const headerName = getAuthHeaderName(config.headerType, config.keyName);
-  const headerValue = getAuthHeaderValue(config.apiKey, config.headerType);
+  const authType = getNormalizedAuthType(config);
+  if (authType === 'query') {
+    return 'Query param: [key]';
+  }
 
-  if (config.headerType === 'bearer') {
+  const headerName = getAuthHeaderName(authType, getNormalizedHeaderName(config));
+  const headerValue = getAuthHeaderValue(config.apiKey, authType);
+
+  if (authType === 'bearer') {
     return `${headerName}: Bearer [key]`;
-  } else if (config.headerType === 'api-key') {
+  } else if (authType === 'api-key') {
     return `${headerName}: [key]`;
   }
 
@@ -307,7 +329,7 @@ export function getHeaderPreview(config: ApiKeyConfig): string {
 export function validateHeaderType(
   headerType: string | undefined
 ): { valid: boolean; error?: string } {
-  const validTypes = ['bearer', 'api-key', 'custom'];
+  const validTypes = ['bearer', 'api-key', 'custom', 'query'];
 
   if (!headerType) {
     return { valid: true };

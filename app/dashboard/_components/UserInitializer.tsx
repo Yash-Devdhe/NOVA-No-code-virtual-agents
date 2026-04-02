@@ -7,6 +7,11 @@ import { UserDetailContext } from "@/context/UserDetailsContext"
 import { api } from "@/convex/_generated/api"
 import { localGuestProfile, isClerkEnabled } from "@/lib/authMode"
 
+type AuthenticatedUserSeed = {
+  name: string
+  email: string
+}
+
 function GuestUserInitializer() {
   const { userDetail, setUserDetail } = useContext(UserDetailContext)
   const [isInitialized, setIsInitialized] = useState(false)
@@ -46,16 +51,18 @@ function GuestUserInitializer() {
   return null
 }
 
-function ClerkUserInitializer() {
-  const { useUser } = require("@clerk/nextjs") as typeof import("@clerk/nextjs")
-  const { user, isLoaded } = useUser()
+function ClerkUserInitializer({
+  initialUser,
+}: {
+  initialUser: AuthenticatedUserSeed | null
+}) {
   const { userDetail, setUserDetail } = useContext(UserDetailContext)
   const [isInitialized, setIsInitialized] = useState(false)
   const { toast } = useToast()
   const createUserMutation = useMutation(api.user.CreateNewUser)
 
   useEffect(() => {
-    if (!isLoaded || !user || isInitialized) return
+    if (!initialUser || isInitialized) return
 
     if (userDetail?._id) {
       setIsInitialized(true)
@@ -64,21 +71,9 @@ function ClerkUserInitializer() {
 
     const initializeUser = async () => {
       try {
-        const email = user.emailAddresses?.[0]?.emailAddress
-        const name = user.fullName || user.firstName || "User"
-
-        if (!email) {
-          toast({
-            title: "Initialization failed",
-            description: "No email found for user",
-            variant: "destructive",
-          })
-          return
-        }
-
         const userData = await createUserMutation({
-          name,
-          email,
+          name: initialUser.name,
+          email: initialUser.email,
         })
 
         if (userData && userData._id) {
@@ -100,11 +95,19 @@ function ClerkUserInitializer() {
     }
 
     void initializeUser()
-  }, [createUserMutation, isInitialized, isLoaded, setUserDetail, toast, user, userDetail?._id])
+  }, [createUserMutation, initialUser, isInitialized, setUserDetail, toast, userDetail?._id])
 
   return null
 }
 
-export default function UserInitializer() {
-  return isClerkEnabled ? <ClerkUserInitializer /> : <GuestUserInitializer />
+export default function UserInitializer({
+  initialUser,
+}: {
+  initialUser?: AuthenticatedUserSeed | null
+}) {
+  return isClerkEnabled ? (
+    <ClerkUserInitializer initialUser={initialUser ?? null} />
+  ) : (
+    <GuestUserInitializer />
+  )
 }

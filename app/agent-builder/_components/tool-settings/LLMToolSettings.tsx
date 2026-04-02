@@ -40,7 +40,6 @@ const LLMToolSettings: React.FC<LLMToolSettingsProps> = ({
   const [systemPrompt, setSystemPrompt] = useState(initialConfig.systemPrompt || '');
   const [userPrompt, setUserPrompt] = useState(initialConfig.userPrompt || '');
   const [temperature, setTemperature] = useState(initialConfig.temperature || 0.7);
-  const [maxTokens, setMaxTokens] = useState(initialConfig.maxTokens || 2000);
   const [apiKeyConfig, setApiKeyConfig] = useState(
     initialConfig.apiKeyConfig || {
       useApiKey: true,
@@ -66,11 +65,6 @@ const LLMToolSettings: React.FC<LLMToolSettingsProps> = ({
       return;
     }
 
-    if (maxTokens < 1 || maxTokens > 4000) {
-      alert('Max tokens must be between 1 and 4000');
-      return;
-    }
-
     setSaving(true);
     try {
       const config = {
@@ -79,7 +73,6 @@ const LLMToolSettings: React.FC<LLMToolSettingsProps> = ({
         systemPrompt,
         userPrompt,
         temperature: parseFloat(temperature.toString()),
-        maxTokens: parseInt(maxTokens.toString()),
         apiKeyConfig,
         nodeId,
         agentId,
@@ -204,19 +197,6 @@ const LLMToolSettings: React.FC<LLMToolSettingsProps> = ({
               <p className="text-xs text-gray-500 mt-1">
                 0 = Deterministic, 2 = Creative. Higher values increase randomness.
               </p>
-            </div>
-
-            <div>
-              <Label className="text-xs font-medium text-gray-700">Max Tokens</Label>
-              <Input
-                type="number"
-                min="1"
-                max="4000"
-                value={maxTokens}
-                onChange={(e) => setMaxTokens(parseInt(e.target.value))}
-                className="mt-1"
-              />
-              <p className="text-xs text-gray-500 mt-1">Maximum length of the response (1-4000)</p>
             </div>
           </CardContent>
         </Card>

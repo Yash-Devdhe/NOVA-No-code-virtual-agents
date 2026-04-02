@@ -51,6 +51,15 @@ function extractNumber(value: string) {
   return match?.[0] || null;
 }
 
+function extractWeatherLocation(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return trimmed;
+  return trimmed
+    .replace(/^(what(?:'s| is)?\s+the\s+)?weather\s+(?:like\s+)?(?:for|in)\s+/i, "")
+    .replace(/^weather\s+/i, "")
+    .trim();
+}
+
 function normalizeConfiguredCurrencyUrl(rawUrl: string, prompt: string) {
   const inputCode = extractCurrencyCode(prompt);
   const configuredCode = rawUrl.match(/\/([A-Z]{3})\/?$/i)?.[1]?.toUpperCase() || "INR";
@@ -83,6 +92,7 @@ function formatApiResponse(data: any) {
 async function runPreviewApiNode(node: ToolNode, prompt: string) {
   const apiUrl = String(node.config?.apiUrl || "");
   const configuredMethod = String(node.config?.method || "GET").toUpperCase();
+  const weatherLocation = extractWeatherLocation(prompt);
   const isInternal = apiUrl.startsWith("/");
   const isExchangeRateApi = /api\.exchangerate-api\.com\/v4\/latest/i.test(apiUrl);
   const isWorldTimeApi = /worldtimeapi\.org\/api\/timezone/i.test(apiUrl);
@@ -144,17 +154,31 @@ async function runPreviewApiNode(node: ToolNode, prompt: string) {
   }
 
   const response = isInternal
-    ? await fetch(url, {
+      ? await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: method === "GET" ? undefined : JSON.stringify(body || {}),
+        body: method === "GET" ? undefined : JSON.stringify(body || {
+          prompt,
+          input: prompt,
+          city: weatherLocation || prompt,
+          location: weatherLocation || prompt,
+          country: weatherLocation || prompt,
+          timezone: prompt,
+          coin: prompt,
+          base: extractCurrencyCode(prompt),
+          currency: extractCurrencyCode(prompt),
+          number: extractNumber(prompt),
+        }),
       })
-    : await fetch("/api/custom-api", {
+      : await fetch("/api/custom-api", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           url,
           method,
+          apiKey: node.config?.apiKey,
+          apiKeyConfig: node.config?.apiKeyConfig,
+          city: weatherLocation || undefined,
           body,
           contentType: "application/json",
         }),
@@ -265,7 +289,7 @@ const AgentTestModal = ({
     setLoading(true);
 
     try {
-      const apiNodes = nodes.filter((node) => node.type === "api" && node.config?.apiUrl);
+      const apiNodes = nodes.filter((node) => (node.type === "api" || node.type === "custom") && node.config?.apiUrl);
       const messageText = input.trim();
       const content =
         apiNodes.length === 1
@@ -299,7 +323,10 @@ const AgentTestModal = ({
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "I apologize, but I encountered an error processing your request. Please try again.",
+        content:
+          error instanceof Error
+            ? `Agent error: ${error.message}`
+            : "Agent error: Unknown error",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);

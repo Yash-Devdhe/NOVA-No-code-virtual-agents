@@ -13,6 +13,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Trash2, Edit3, Bot, Layers } from 'lucide-react';
 import type { CustomTool } from '../../../types/agent-builder';
 import { useToast } from '@/components/ui/use-toast';
+import { ToolApiKeyInput } from '@/components/toolsettings/ToolApiKeyInput';
+
+interface ApiKeyConfig {
+  useApiKey: boolean;
+  apiKey: string;
+  authType: 'bearer' | 'api-key' | 'query' | 'custom';
+  customHeaderName?: string;
+}
 
 interface CustomToolForm {
   id: string;
@@ -21,7 +29,7 @@ interface CustomToolForm {
   apiUrl: string;
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';
   paramsSchema: string;
-  apiKey: string;
+  apiKeyConfig: ApiKeyConfig;
 }
 
 interface CustomToolsManagerProps {
@@ -42,7 +50,11 @@ export default function CustomToolsManager({ agentId, triggerButton }: CustomToo
     apiUrl: '',
     method: 'GET',
     paramsSchema: '{}',
-    apiKey: '',
+    apiKeyConfig: {
+      useApiKey: false,
+      apiKey: '',
+      authType: 'bearer' as const,
+    },
   });
 
   const addTool = useMutation(api.agent.AddCustomTool);
@@ -59,7 +71,11 @@ export default function CustomToolsManager({ agentId, triggerButton }: CustomToo
       apiUrl: '',
       method: 'GET',
       paramsSchema: '{}',
-      apiKey: '',
+      apiKeyConfig: {
+        useApiKey: false,
+        apiKey: '',
+        authType: 'bearer' as const,
+      },
     });
     setEditMode(false);
     setEditingToolId('');
@@ -86,7 +102,7 @@ export default function CustomToolsManager({ agentId, triggerButton }: CustomToo
         paramsSchema: form.paramsSchema.trim()
           ? JSON.parse(form.paramsSchema)
           : {},
-        apiKey: form.apiKey.trim() || undefined,
+        apiKeyConfig: form.apiKeyConfig.useApiKey ? form.apiKeyConfig : undefined,
       };
 
       if (editMode) {
@@ -123,7 +139,12 @@ export default function CustomToolsManager({ agentId, triggerButton }: CustomToo
       apiUrl: tool.apiUrl || '',
       method: tool.method as any || 'GET',
       paramsSchema: JSON.stringify(tool.paramsSchema || {}, null, 2),
-      apiKey: tool.apiKey || '',
+      apiKeyConfig: {
+        useApiKey: !!tool.apiKeyConfig?.useApiKey || !!tool.apiKey,
+        apiKey: (tool.apiKeyConfig as any)?.apiKey || tool.apiKey || '',
+        authType: (tool.apiKeyConfig as any)?.authType || 'bearer' as any,
+        customHeaderName: (tool.apiKeyConfig as any)?.customHeaderName || '',
+      },
     });
     setEditMode(true);
     setEditingToolId(tool.id);
@@ -238,16 +259,11 @@ export default function CustomToolsManager({ agentId, triggerButton }: CustomToo
                 placeholder='{"query": "string"}'
               />
             </div>
-            <div>
-              <Label htmlFor="apiKey">API Key (Optional)</Label>
-              <Input
-                id="apiKey"
-                type="password"
-                value={form.apiKey}
-                onChange={(e) => setForm({ ...form, apiKey: e.target.value })}
-                placeholder="Enter your API key"
-              />
-            </div>
+            <ToolApiKeyInput
+              value={form.apiKeyConfig}
+              onChange={(config) => setForm({ ...form, apiKeyConfig: config })}
+              tooltip="OpenWeatherMap: use 'Query' auth type with appid key"
+            />
             <div className="flex gap-2 pt-4">
               <Button type="submit" className="flex-1">
                 {editMode ? 'Update Tool' : 'Add Tool'}

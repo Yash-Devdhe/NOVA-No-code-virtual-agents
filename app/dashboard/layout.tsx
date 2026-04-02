@@ -1,28 +1,33 @@
-'use client'
+import { auth, currentUser } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
+import DashboardShell from './DashboardShell'
+import { isClerkEnabled } from '@/lib/authMode'
 
-import { SidebarProvider } from '@/components/ui/sidebar'
-import { UserDetailProvider } from '@/context/UserDetailsContext'
-import { AppSidebar } from './_components/AppSidebar'
-import AppHeader from './_components/AppHeader'
-import UserInitializer from './_components/UserInitializer'
-
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return (
-    <UserDetailProvider>
-      <UserInitializer />
-      <SidebarProvider>
-        <div className="flex min-h-screen w-full bg-slate-50">
-          <AppSidebar />
-          <div className="flex min-w-0 w-full flex-1 flex-col">
-            <AppHeader />
-            <main className="flex-1 overflow-auto p-4 md:p-6">{children}</main>
-          </div>
-        </div>
-      </SidebarProvider>
-    </UserDetailProvider>
-  )
+  let initialUser: { name: string; email: string } | null = null
+
+  if (isClerkEnabled) {
+    const { userId } = await auth()
+    if (!userId) {
+      redirect('/sign-in')
+    }
+
+    const user = await currentUser()
+    const email = user?.emailAddresses?.[0]?.emailAddress
+
+    if (!email) {
+      redirect('/sign-in')
+    }
+
+    initialUser = {
+      name: user?.fullName || user?.firstName || 'User',
+      email,
+    }
+  }
+
+  return <DashboardShell initialUser={initialUser}>{children}</DashboardShell>
 }
