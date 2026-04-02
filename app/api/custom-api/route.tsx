@@ -84,7 +84,12 @@ async function handleOpenWeatherRequest(body: CustomApiPayload) {
   }
 
   // ✅ PROXY to perfect weather route (handles fallback + parsing)
-  const weatherResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/weather`, {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.NOVA_AGENT_BASE_URL ||
+    (process.env.RENDER_EXTERNAL_URL ? `https://${process.env.RENDER_EXTERNAL_URL}` : 'http://localhost:3000');
+  const weatherResponse = await fetch(`${baseUrl}/api/weather`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
 
-const BASE_URL = process.env.NOVA_AGENT_BASE_URL || "http://localhost:3000";
+const BASE_URL = process.env.NOVA_AGENT_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== "undefined" ? window.location.origin : process.env.RENDER_EXTERNAL_URL ? `https://${process.env.RENDER_EXTERNAL_URL}` : "http://localhost:3000");
 
 const ROUTES = {
   currency: {

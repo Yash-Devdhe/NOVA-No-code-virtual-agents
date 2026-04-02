@@ -160,7 +160,7 @@ function buildJavaScriptRuntime(
  * Agent Type: ${escapeTemplate(agentConfig.type)}
  */
 const API_KEYS = ${JSON.stringify(apiKeys, null, 2)};
-const BASE_URL = process.env.NOVA_AGENT_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const BASE_URL = process.env.NOVA_AGENT_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== "undefined" ? window.location.origin : process.env.RENDER_EXTERNAL_URL ? 'https://' + process.env.RENDER_EXTERNAL_URL : "http://localhost:3000");
 const AGENT = ${JSON.stringify(agentConfig, null, 2)};
 const text = (value) => String(value || "").trim();
 const slug = (value) => text(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
@@ -389,7 +389,13 @@ import json, os, re, sys, urllib.error, urllib.parse, urllib.request
 
 API_KEYS = json.loads(r'''${escapePythonBlock(JSON.stringify(apiKeys, null, 2))}''')
 AGENT = json.loads(r'''${escapePythonBlock(JSON.stringify(agentConfig, null, 2))}''')
-BASE_URL = os.environ.get("NOVA_AGENT_BASE_URL") or os.environ.get("NEXT_PUBLIC_APP_URL") or "http://localhost:3000"
+BASE_URL = (
+    os.environ.get("NOVA_AGENT_BASE_URL")
+    or os.environ.get("NEXT_PUBLIC_APP_URL")
+    or os.environ.get("NEXT_PUBLIC_BASE_URL")
+    or ("https://" + os.environ.get("RENDER_EXTERNAL_URL"))
+    or "http://localhost:3000"
+)
 ALIASES = {"currency":["currency","convert","rate","exchange"],"weather":["weather","forecast","temperature"],"ip":["ip","geo","geolocation","location"],"joke":["joke","funny","laugh"],"country":["country","capital"],"crypto":["crypto","coin","bitcoin","ethereum"],"time":["time","timezone","clock"],"number":["number","fact","math"],"generic":["tool","api"]}
 
 def text(v): return str(v or "").strip()

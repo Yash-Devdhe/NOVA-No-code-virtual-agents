@@ -6,7 +6,11 @@
 export async function verifyCurrencyConverterSetup() {
   console.log('🔍 Verifying Currency Converter API Setup...\n');
 
-  const baseUrl = 'http://localhost:3000';
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.NOVA_AGENT_BASE_URL ||
+    (process.env.RENDER_EXTERNAL_URL ? `https://${process.env.RENDER_EXTERNAL_URL}` : 'http://localhost:3000');
   const tests = [];
 
   // Test 1: API endpoint exists
