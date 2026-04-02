@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import {Outfit} from 'next/font/google';
+// import {Outfit} from 'next/font/google';
 import "./globals.css";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 import { ClerkProvider } from '@clerk/nextjs'
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: "NOVA: No Code Virtual Agents",
   description: "The Website where you can create your own AI Virtual Agents without coding.",
 };
-const outfit = Outfit({subsets: ['latin']});
+// const outfit = Outfit({subsets: ['latin']});
 export default function RootLayout({
   children,
 }: Readonly<{
