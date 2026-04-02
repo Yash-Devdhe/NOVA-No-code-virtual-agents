@@ -11,7 +11,6 @@ import {
   useEdgesState,
   useNodesState,
 } from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
 
 interface AgentCanvasProps {
   nodes?: any[];

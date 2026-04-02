@@ -2,7 +2,6 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState, use } from "react";
 import { Background, BackgroundVariant, Controls, MiniMap, Position, ReactFlow, addEdge, applyEdgeChanges, applyNodeChanges, Handle, type Connection } from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
 import { useMutation, useQuery } from "convex/react";
 import { ArrowLeft, Bot, Braces, Check, Copy, Download, Eye, GitBranch, Globe, Play, RefreshCw, Save, Settings2, Sparkles, Square, Workflow, Wrench, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
