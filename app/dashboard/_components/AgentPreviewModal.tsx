@@ -314,7 +314,7 @@ function generateLocalResponse(prompt: string): string | null {
   }
 
   if (normalized.includes("hello") || normalized.includes("hi") || normalized.includes("hey")) {
-    return "Hello! I'm here to help you create professional AI agents. You can ask me about tools, guidelines, and best practices.";
+    return "Hello! I'm Nova AI Assistant, ready to help you create professional AI agents. You can ask me about tools, guidelines, and best practices.";
   }
 
   if (normalized.includes("help")) {
@@ -336,7 +336,7 @@ const AgentPreviewModal: React.FC<AgentPreviewModalProps> = ({
       id: "1",
       role: "assistant",
       content:
-        "Welcome to NOVA. I'm your AI assistant for creating professional agents.\n\nI can help you with:\n- Guidelines for building agents\n- Tool information and how each node works\n- Real-time chat about your workflow\n\nAvailable tools:\n- Start\n- End\n- If/Else\n- While Loop\n- Agent\n- API\n- LLM\n- User Approval\n- Sub-Workflow\n\nGetting started:\n1. Click Tools to see all building blocks\n2. Click a tool to read details\n3. Or just chat with me directly\n\nWhat would you like to explore?",
+        "Welcome to NOVA. I'm Nova AI Assistant, here to help you create professional agents.\n\nI can help you with:\n- Guidelines for building agents\n- Tool information and how each node works\n- Real-time chat about your workflow\n\nAvailable tools:\n- Start\n- End\n- If/Else\n- While Loop\n- Agent\n- API\n- LLM\n- User Approval\n- Sub-Workflow\n\nGetting started:\n1. Click Tools to see all building blocks\n2. Click a tool to read details\n3. Or just chat with me directly\n\nWhat would you like to explore?",
       timestamp: new Date(),
       type: "text",
     },

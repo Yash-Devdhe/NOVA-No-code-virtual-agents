@@ -2,7 +2,7 @@ import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { isClerkEnabled } from '@/lib/authMode'
 
-const isPublicRoute = createRouteMatcher(['/sign-in(.*)','/sign-up(.*)'])
+const isPublicRoute = createRouteMatcher(['/', '/sign-in(.*)','/sign-up(.*)'])
 
 const passthroughMiddleware = () => NextResponse.next()
 

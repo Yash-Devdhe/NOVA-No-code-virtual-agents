@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState, use } from "react";
 import { Background, BackgroundVariant, Controls, MiniMap, Position, ReactFlow, addEdge, applyEdgeChanges, applyNodeChanges, Handle, type Connection } from "@xyflow/react";
 import { useMutation, useQuery } from "convex/react";
-import { ArrowLeft, Bot, Braces, Check, Copy, Download, Eye, GitBranch, Globe, Play, RefreshCw, Save, Settings2, Sparkles, Square, Workflow, Wrench, Zap } from "lucide-react";
+import { ArrowLeft, Bot, Braces, Check, Copy, Download, Eye, GitBranch, Globe, Play, RefreshCw, Save, Settings2, Sparkles, Square, Workflow, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/convex/_generated/api";
 import { generateAgentCode } from "@/lib/codeGenerator";
 import type { CustomTool, RFEdge, RFNode } from "@/types/agent-builder";
-import CustomToolsManager from "../../dashboard/_components/CustomToolsManager";
 import DragApiKeyDropdown from "../_components/DragApiKeyDropdown";
 import AgentTestModal from "../../dashboard/_components/AgentTestModal";
 
@@ -95,6 +94,7 @@ export default function AgentBuilderPage({ params }: AgentBuilderPageProps) {
   const agent = useQuery(api.agent.GetAgentById, { agentId });
   const customTools = (useQuery(api.agent.GetAgentCustomTools, { agentId }) || []) as CustomTool[];
   const saveConfig = useMutation(api.agent.UpdateAgentConfig);
+  const touchAgentOpen = useMutation(api.agent.TouchAgentOpen);
   const [agentType, setAgentType] = useState<AgentType>("assistant");
   const [settings, setSettings] = useState<BuilderSettings>(DEFAULT_SETTINGS);
   const [nodes, setNodes] = useState<RFNode[]>(INITIAL_NODES);
@@ -126,6 +126,14 @@ export default function AgentBuilderPage({ params }: AgentBuilderPageProps) {
     if (cfg.settings) setSettings((c) => ({ ...c, ...cfg.settings })); else if (agent.name) setSettings((c) => ({ ...c, agentName: agent.name }));
     hydrated.current = true;
   }, [agent]);
+
+  useEffect(() => {
+    if (!agent?.userId) return;
+    void touchAgentOpen({
+      agentId,
+      userId: agent.userId,
+    });
+  }, [agent?.userId, agentId, touchAgentOpen]);
 
   useEffect(() => {
     console.log("Agent data", agent);
@@ -247,8 +255,6 @@ export default function AgentBuilderPage({ params }: AgentBuilderPageProps) {
     catch { toast({ title: "Save failed", description: "The agent could not be saved right now.", variant: "destructive" }); }
   }, [persist, toast]);
 
-  const apiCard = TOOLS.find((t) => t.type === "api")!;
-
   return (
     <div className="min-h-screen bg-[#f6f7fb] text-slate-900">
       <div className="border-b border-slate-200 bg-white"><div className="flex items-center justify-between gap-4 px-6 py-5">
@@ -264,48 +270,6 @@ export default function AgentBuilderPage({ params }: AgentBuilderPageProps) {
         <aside className="border-r border-slate-200 bg-white"><div className="h-[calc(100vh-89px)] overflow-y-auto p-5">
           <div className="mb-6"><h2 className="text-2xl font-bold">Toolbox</h2><p className="mt-2 text-sm text-slate-500">Click tools to add them to the canvas.</p></div>
           <div className="space-y-3">{TOOLS.map((tool) => <button key={tool.type} type="button" draggable={tool.type !== 'edge'} onDragStart={(e) => handleToolDragStart(e, tool.type)} onClick={() => addTool(tool)} className="w-full rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-sky-300 hover:shadow-md"><div className="flex items-start gap-4"><div className={`rounded-2xl border px-3 py-3 ${tool.accent}`}><tool.icon className="h-5 w-5" /></div><div><div className="text-lg font-semibold">{tool.label}</div><div className="text-sm text-slate-500">{tool.description}</div></div></div></button>)}</div>
-          <div className="mt-8 space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-4">
-            <div>
-              <div className="text-lg font-semibold text-slate-900">Custom Tools</div>
-              <p className="mt-1 text-sm text-slate-500">Add your real-time APIs here, then drop them into the canvas. Generated code will expose them in terminal chat.</p>
-            </div>
-            <CustomToolsManager
-              agentId={agentId}
-              triggerButton={
-                <Button type="button" className="w-full rounded-2xl bg-slate-950 text-white hover:bg-slate-800">
-                  <Wrench className="h-4 w-4" />
-                  Manage Custom Tools
-                </Button>
-              }
-            />
-            <div className="space-y-3">
-              {customTools.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-500">
-                  No custom APIs added yet. Add tools like Joke, Weather, Currency, Country, Crypto, IP, Time, or Number Facts.
-                </div>
-              ) : (
-                customTools.map((tool) => (
-                  <button
-                    key={tool.id}
-                    type="button"
-                    onClick={() => addTool(apiCard, tool)}
-                    className="w-full rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-sky-300 hover:shadow-md"
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="rounded-2xl border bg-cyan-100 px-3 py-3 text-cyan-700 border-cyan-200">
-                        <Globe className="h-5 w-5" />
-                      </div>
-                      <div className="min-w-0">
-                        <div className="text-base font-semibold text-slate-900">{tool.name}</div>
-                        <div className="text-sm text-slate-500">{tool.description}</div>
-                        <div className="mt-2 truncate text-xs text-slate-400">{tool.apiUrl || "No URL configured"}</div>
-                      </div>
-                    </div>
-                  </button>
-                ))
-              )}
-            </div>
-          </div>
         </div></aside>
 
         <main className="relative overflow-hidden bg-[#f8fafc]"><div className="relative h-[calc(100vh-89px)]">
@@ -327,7 +291,7 @@ export default function AgentBuilderPage({ params }: AgentBuilderPageProps) {
             </div>
             <div className="grid h-[calc(100%-73px)] grid-rows-[1fr_180px]">
               <div className="overflow-auto px-6 py-5"><pre className="whitespace-pre-wrap font-mono text-sm leading-6 text-slate-100">{generatedCode}</pre></div>
-              <div className="border-t border-slate-800 bg-slate-950/60 px-6 py-5"><div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-300"><Braces className="h-4 w-4" />Available runtime surfaces</div><div className="grid grid-cols-2 gap-3 text-sm text-slate-300"><div>{codeLanguage === "python" ? "`run_agent(prompt)` returns the live tool reply." : "`runAgent(prompt)` returns the active agent reply and workflow result."}</div><div>`OPENAI_API_KEY` remains optional for any separate LLM usage.</div><div>API and custom tools execute with live HTTP requests.</div><div>{codeLanguage === "python" ? "Download and run with Python 3.10+." : "Download or copy the file and run it in Node 20+."}</div></div></div>
+              <div className="border-t border-slate-800 bg-slate-950/60 px-6 py-5"><div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-300"><Braces className="h-4 w-4" />Available runtime surfaces</div><div className="grid grid-cols-2 gap-3 text-sm text-slate-300"><div>{codeLanguage === "python" ? "`run_agent(prompt)` returns the live tool reply." : "`runAgent(prompt)` returns the active agent reply and workflow result."}</div><div>`OPENAI_API_KEY` remains optional for any separate LLM usage.</div><div>Configured API calls execute with live HTTP requests.</div><div>{codeLanguage === "python" ? "Download and run with Python 3.10+." : "Download or copy the file and run it in Node 20+."}</div></div></div>
             </div>
           </div>}
           <div className="pointer-events-none absolute bottom-4 left-4 rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm shadow-sm backdrop-blur"><div className="font-semibold text-slate-900">{nodes.length} nodes · {edges.length} connections</div><div className="text-slate-500">Save state: {saveState}</div></div>

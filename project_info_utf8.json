@@ -1,0 +1,570 @@
+﻿{
+  "accountId": "team_6083opohBEFhWkBozXr1mZiM",
+  "speedInsights": {
+    "id": "lhqpFthZvmokHaWCF304qV9zLB4",
+    "hasData": false
+  },
+  "autoExposeSystemEnvs": true,
+  "autoAssignCustomDomains": true,
+  "autoAssignCustomDomainsUpdatedBy": "system",
+  "buildCommand": "npm run build",
+  "createdAt": 1774516962788,
+  "crons": {
+    "enabledAt": 1774517042089,
+    "disabledAt": null,
+    "updatedAt": 1775332808288,
+    "deploymentId": "dpl_AzxJogXRUuNMfNDFpzay15vz5T5q",
+    "definitions": []
+  },
+  "deploymentExpiration": {
+    "expirationDays": 180,
+    "expirationDaysProduction": 365,
+    "expirationDaysCanceled": 30,
+    "expirationDaysErrored": 90,
+    "deploymentsToKeep": 10
+  },
+  "devCommand": null,
+  "directoryListing": false,
+  "env": [
+    {
+      "type": "encrypted",
+      "key": "ARCJET_KEY",
+      "value": "eyJ2IjoidjIiLCJjIjoidG9ScFFxSjhzNUZRaDBhYVNtK3RUTkxMa29PRU1PN1ZsbEVLK2tBOWJ3aUlDd3BEYUtXVVdCSGF4SC81OVJ4WW1ZVVVvSlFmT1RSR1l1MXlXNXBVdXIyeTVYbG91alcydmE3S3Z0VVdyREI0aENJWEhBa0lUdUpUTGlCYklEejNaZzhkRThjNnRJeTBJOUVLVVdjdGpIQjNRNDI5aEhkY2Zabnl3Zz09IiwiayI6WzE4NCwxLDIsMywwLDEyMCwzNywyMTAsNDgsMTI5LDIxMSwxMDQsMTg1LDYsMjM4LDI3LDI1NSw1OCwyMDksMTQ2LDEyMywxMjYsMTkxLDE1OSwxNzIsMTYwLDkwLDE1NSwxMzUsMTIzLDIzNiwxMTUsMTk2LDMxLDkyLDEyOCwxMzEsMzMsMSw2MiwyNiwxNDksODksMTMxLDEzLDAsNSwyNTUsMTk0LDY2LDEwMywxNTEsMjYsNDEsODgsMCwwLDAsMTI2LDQ4LDEyNCw2LDksNDIsMTM0LDcyLDEzNCwyNDcsMTMsMSw3LDYsMTYwLDExMSw0OCwxMDksMiwxLDAsNDgsMTA0LDYsOSw0MiwxMzQsNzIsMTM0LDI0NywxMywxLDcsMSw0OCwzMCw2LDksOTYsMTM0LDcyLDEsMTAxLDMsNCwxLDQ2LDQ4LDE3LDQsMTIsMjE1LDI0NiwxMjAsMjUyLDk0LDc4LDIwLDIyNSwxODMsMjEyLDE4MCw1OCwyLDEsMTYsMTI4LDU5LDYzLDE4MCwyMzgsMzUsMTgwLDE3MCwxMjQsMTkwLDMsMTIwLDIxLDEwNywxMTIsMTUzLDI0LDExNiw4MiwxNTksMjgsMSw4NywxMDYsNSwyNDcsMTE1LDExNiwyNDUsNTMsNjQsMzEsMTEzLDE1MiwyMTYsOCw4OCwyMzIsMTY0LDc1LDUxLDI0LDE0MiwyMDEsMjE0LDE4LDYzLDE1NywyMjgsMzMsMTIxLDI1MiwzMywyMjEsMTAwLDI3LDU5LDE4LDE3LDEzNyw3OF19",
+      "target": [
+        "production",
+        "preview",
+        "development"
+      ],
+      "configurationId": null,
+      "createdAt": 1774516962679,
+      "updatedAt": 1774516962679,
+      "createdBy": "2Mg5mFM7Jk5MhHabWdQ0iQKk",
+      "updatedBy": null,
+      "id": "iFpUOA9W0ndrinOd"
+    },
+    {
+      "type": "encrypted",
+      "key": "CLERK_SECRET_KEY",
+      "value": "eyJ2IjoidjIiLCJjIjoiZXhPaytmY2s0OVloZFJvdE9iT2IzRmpBZGJSWVI3MWNlTFhROUE5U0tKdnBJSFpKSkdCRnNqRVFWcTlnZjk0UkU2VFgxUXozdkxJNTN6ZFc2aVN6aHIxaU5IeXYyOGhsS29TWGxBOXpPWnpXQmpqVEFvNFB5VFdpQ0VXb1liRDBlcDl2RDBZRWZ5Ymhkbk5lalJ3VlhvRHZPdG5NY1pKWHppVlRCRUtFQ2YycThubTVuY0lmcmMyQjd2Z0lqWVVEK0FCL3VvcDVtZGtXRVIyaSIsImsiOlsxODQsMSwyLDMsMCwxMjAsMzcsMjEwLDQ4LDEyOSwyMTEsMTA0LDE4NSw2LDIzOCwyNywyNTUsNTgsMjA5LDE0NiwxMjMsMTI2LDE5MSwxNTksMTcyLDE2MCw5MCwxNTUsMTM1LDEyMywyMzYsMTE1LDE5NiwzMSw5MiwxMjgsMTMxLDMzLDEsNDgsNDYsMjUsMTExLDI1NSwyMjUsNTksMjQ1LDIxNCwxNjcsMTQ1LDIwMywzNCwyMSwyMiw4LDAsMCwwLDEyNiw0OCwxMjQsNiw5LDQyLDEzNCw3MiwxMzQsMjQ3LDEzLDEsNyw2LDE2MCwxMTEsNDgsMTA5LDIsMSwwLDQ4LDEwNCw2LDksNDIsMTM0LDcyLDEzNCwyNDcsMTMsMSw3LDEsNDgsMzAsNiw5LDk2LDEzNCw3MiwxLDEwMSwzLDQsMSw0Niw0OCwxNyw0LDEyLDIyMywxODUsNDUsNzksOTMsMTM0LDYxLDU1LDE2NywxNzUsMjMxLDE3NSwyLDEsMTYsMTI4LDU5LDI0Myw2MCwyNDgsNTAsMTI5LDEzLDUwLDQzLDI1MiwxNjksMTg0LDIzLDE0Myw2NiwxMjYsMTE0LDE3OCwyMjUsNTUsNTksMjEzLDEzMSwyMjcsMTAsNjQsMTQyLDczLDMzLDg1LDEzNyw1NSw0MiwxNSwyMTEsMTQyLDUyLDE3MywxOTEsMTk4LDE4NCwxNiw5NCw2OCwzNiwyMjAsNTksMTIxLDE5NCwxNDEsNTYsMjQ3LDI0LDI5LDI1NCwxMjIsMjAsMjQzLDYyLDEyOF19",
+      "target": [
+        "production",
+        "preview",
+        "development"
+      ],
+      "configurationId": null,
+      "createdAt": 1774516962679,
+      "updatedAt": 1774516962679,
+      "createdBy": "2Mg5mFM7Jk5MhHabWdQ0iQKk",
+      "updatedBy": null,
+      "id": "Ns41j1plsIirufj3"
+    },
+    {
+      "type": "encrypted",
+      "key": "CONVEX_DEPLOY_KEY",
+      "value": "eyJ2IjoidjIiLCJjIjoiNytDTzVZbGV6MzBYVkx1QkYwb0dlTUEyTjdDcnFxb1BLSGhDRnlVYW9nc25BbTZmNjFmMHpqQXhFRDFIWVIrb2xHS2NIaVpoSXRJSDFYZFlmS3lXdW5LWTdoNmZmU1JtdEFucVdKRGFwVTFLV0FGQnBqZXNtVURUeHFDbXJxOVZHV2MvZXV1UHFKS1FyUDZVQmxTT3lUSWd3R0l4Y0JqZUp3MmNlSWVRaEVCSnFxcDhxQkNSSENJSU9hMWRyb0xnY1JiRXk2MlNPU2dZRk1NSGJhVkxERmI1U2JmTSt1WVMySDdJbkJ0YkZDMlNoNlRQQnEvYmN5VThpUTdnc1l4QkE3ckpMTkNkdGx0T3Z3WStJTGRPYW5TSWordz0iLCJrIjpbMTg0LDEsMiwzLDAsMTIwLDM3LDIxMCw0OCwxMjksMjExLDEwNCwxODUsNiwyMzgsMjcsMjU1LDU4LDIwOSwxNDYsMTIzLDEyNiwxOTEsMTU5LDE3MiwxNjAsOTAsMTU1LDEzNSwxMjMsMjM2LDExNSwxOTYsMzEsOTIsMTI4LDEzMSwzMywxLDQ4LDQ2LDI1LDExMSwyNTUsMjI1LDU5LDI0NSwyMTQsMTY3LDE0NSwyMDMsMzQsMjEsMjIsOCwwLDAsMCwxMjYsNDgsMTI0LDYsOSw0MiwxMzQsNzIsMTM0LDI0NywxMywxLDcsNiwxNjAsMTExLDQ4LDEwOSwyLDEsMCw0OCwxMDQsNiw5LDQyLDEzNCw3MiwxMzQsMjQ3LDEzLDEsNywxLDQ4LDMwLDYsOSw5NiwxMzQsNzIsMSwxMDEsMyw0LDEsNDYsNDgsMTcsNCwxMiwyMjMsMTg1LDQ1LDc5LDkzLDEzNCw2MSw1NSwxNjcsMTc1LDIzMSwxNzUsMiwxLDE2LDEyOCw1OSwyNDMsNjAsMjQ4LDUwLDEyOSwxMyw1MCw0MywyNTIsMTY5LDE4NCwyMywxNDMsNjYsMTI2LDExNCwxNzgsMjI1LDU1LDU5LDIxMywxMzEsMjI3LDEwLDY0LDE0Miw3MywzMyw4NSwxMzcsNTUsNDIsMTUsMjExLDE0Miw1MiwxNzMsMTkxLDE5OCwxODQsMTYsOTQsNjgsMzYsMjIwLDU5LDEyMSwxOTQsMTQxLDU2LDI0NywyNCwyOSwyNTQsMTIyLDIwLDI0Myw2MiwxMjhdfQ==",
+      "target": [
+        "production",
+        "preview",
+        "development"
+      ],
+      "configurationId": null,
+      "createdAt": 1774516962679,
+      "updatedAt": 1774516962679,
+      "createdBy": "2Mg5mFM7Jk5MhHabWdQ0iQKk",
+      "updatedBy": null,
+      "id": "TcTS3uMHmacl4rBx"
+    },
+    {
+      "type": "encrypted",
+      "key": "NEXT_PUBLIC_CLERK_JS_URL",
+      "value": "eyJ2IjoidjIiLCJjIjoiem1xaXNmUEtaQ3p2TzdNTEx6N0dEazBFckM3ZWoyTUJZSlRhckZydXJWQkFkb3g4R05DamNiaWFwWU1pWG9zNUx3QlVNVE5UaUFMdnFtNklMRFhZUEdpTFlPOVorNjBYMW1NK0h1VXJKTE5DaUp5L1N5ejNPd2E4Mm1jWTNac2ZvOWd3UVo2bFRUVVlMZG9nSXBBd1Jlb3lsbUE2d2dDc1A0aHRadUtxc2JYTFNGMWxNTitOZzFleFlSVUVPd3BNczFNVGZmMFRhbTZjUXJFcmVoYkl4bGdURE1DNCtPTmRJZEFmeG1OdE9HZ1FXOWN4dkg2UUMxYkNwakk9IiwiayI6WzE4NCwxLDIsMywwLDEyMCwzNywyMTAsNDgsMTI5LDIxMSwxMDQsMTg1LDYsMjM4LDI3LDI1NSw1OCwyMDksMTQ2LDEyMywxMjYsMTkxLDE1OSwxNzIsMTYwLDkwLDE1NSwxMzUsMTIzLDIzNiwxMTUsMTk2LDMxLDkyLDEyOCwxMzEsMzMsMSw0OCw0NiwyNSwxMTEsMjU1LDIyNSw1OSwyNDUsMjE0LDE2NywxNDUsMjAzLDM0LDIxLDIyLDgsMCwwLDAsMTI2LDQ4LDEyNCw2LDksNDIsMTM0LDcyLDEzNCwyNDcsMTMsMSw3LDYsMTYwLDExMSw0OCwxMDksMiwxLDAsNDgsMTA0LDYsOSw0MiwxMzQsNzIsMTM0LDI0NywxMywxLDcsMSw0OCwzMCw2LDksOTYsMTM0LDcyLDEsMTAxLDMsNCwxLDQ2LDQ4LDE3LDQsMTIsMjIzLDE4NSw0NSw3OSw5MywxMzQsNjEsNTUsMTY3LDE3NSwyMzEsMTc1LDIsMSwxNiwxMjgsNTksMjQzLDYwLDI0OCw1MCwxMjksMTMsNTAsNDMsMjUyLDE2OSwxODQsMjMsMTQzLDY2LDEyNiwxMTQsMTc4LDIyNSw1NSw1OSwyMTMsMTMxLDIyNywxMCw2NCwxNDIsNzMsMzMsODUsMTM3LDU1LDQyLDE1LDIxMSwxNDIsNTIsMTczLDE5MSwxOTgsMTg0LDE2LDk0LDY4LDM2LDIyMCw1OSwxMjEsMTk0LDE0MSw1NiwyNDcsMjQsMjksMjU0LDEyMiwyMCwyNDMsNjIsMTI4XX0=",
+      "target": [
+        "production",
+        "preview",
+        "development"
+      ],
+      "configurationId": null,
+      "createdAt": 1774516962679,
+      "updatedAt": 1774516962679,
+      "createdBy": "2Mg5mFM7Jk5MhHabWdQ0iQKk",
+      "updatedBy": null,
+      "id": "JgdkouNTAVuTY8a3"
+    },
+    {
+      "type": "encrypted",
+      "key": "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
+      "value": "eyJ2IjoidjIiLCJjIjoieVBsUm9KWDVLRTF4Sk8xQnJybkRwT2o4N1FKTnE2eXRHV3kwOGhyL0lic2dIYm1XZStNYW5yN0dTRDlLcWZueWsvOVBxV3hyUkNIY0RkU1E2NWx2K3J5T29hZ2ErVEgza2h2MjVnOFdkeVQ3RDNOMWthQ0JzeTUyYXlxWUV3c3lDQ01OQWdXNkpmd09Db0RTQXpEZGVFVE5xRjMyTzZsb1hWbjA2UmxBcFh0T20wcnBsR0lQNXhobDlPRGp0NU5LQTRrSnZWcy8yYWhJeDd4bE45Y1NsRkdseER3PSIsImsiOlsxODQsMSwyLDMsMCwxMjAsMzcsMjEwLDQ4LDEyOSwyMTEsMTA0LDE4NSw2LDIzOCwyNywyNTUsNTgsMjA5LDE0NiwxMjMsMTI2LDE5MSwxNTksMTcyLDE2MCw5MCwxNTUsMTM1LDEyMywyMzYsMTE1LDE5NiwzMSw5MiwxMjgsMTMxLDMzLDEsMTk4LDIwNSwxMzAsMTA0LDEwOCw1OSwxODEsMTYyLDk5LDQxLDIxNiwxOTYsMTYzLDI3LDEyNCwxMywwLDAsMCwxMjYsNDgsMTI0LDYsOSw0MiwxMzQsNzIsMTM0LDI0NywxMywxLDcsNiwxNjAsMTExLDQ4LDEwOSwyLDEsMCw0OCwxMDQsNiw5LDQyLDEzNCw3MiwxMzQsMjQ3LDEzLDEsNywxLDQ4LDMwLDYsOSw5NiwxMzQsNzIsMSwxMDEsMyw0LDEsNDYsNDgsMTcsNCwxMiwxNzMsMzYsMjIsMTI4LDEwNSwxOTksNiw4OSwxMTIsNTAsMjQsNjYsMiwxLDE2LDEyOCw1OSwyNDYsMTI4LDE2NCwxNTIsMjA0LDUwLDIyOSw2OSw0NywyNDgsMjUyLDQzLDIwMCwyMDksNTgsMjUyLDIxOCwxMDcsMjQ1LDE1NSwxNDksNTksMjA5LDIxMiw0OSw4NSw0NSwyMjIsMTY3LDE1LDExMiwxOTcsMTc3LDI3LDI0MiwyNywxNzYsMTQ5LDE1MSwxNzMsMzEsNTAsMTc0LDY1LDE2MSwxMiwxNzksOTAsOTEsMTk1LDY1LDE4MSw4MCwxNDIsMjgsMTMsMjI0LDIyNCwxNjFdfQ==",
+      "target": [
+        "production",
+        "preview",
+        "development"
+      ],
+      "configurationId": null,
+      "createdAt": 1774516962679,
+      "updatedAt": 1774516962679,
+      "createdBy": "2Mg5mFM7Jk5MhHabWdQ0iQKk",
+      "updatedBy": null,
+      "id": "4bshTK5e6XU3YhNF"
+    },
+    {
+      "type": "encrypted",
+      "key": "NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL",
+      "value": "eyJ2IjoidjIiLCJjIjoiNlJKdllla2pVNVJDS2lDNVNiUFJGR0R0ZkRWZCtkVUVWbmRvSCtsYktjVmFEc0lPWmNmc0dmclZERDg3MEFibDlyb3l6Zzd0bXZpNlNBaEFoUnVja0FENDlrOD0iLCJrIjpbMTg0LDEsMiwzLDAsMTIwLDM3LDIxMCw0OCwxMjksMjExLDEwNCwxODUsNiwyMzgsMjcsMjU1LDU4LDIwOSwxNDYsMTIzLDEyNiwxOTEsMTU5LDE3MiwxNjAsOTAsMTU1LDEzNSwxMjMsMjM2LDExNSwxOTYsMzEsOTIsMTI4LDEzMSwzMywxLDYyLDI2LDE0OSw4OSwxMzEsMTMsMCw1LDI1NSwxOTQsNjYsMTAzLDE1MSwyNiw0MSw4OCwwLDAsMCwxMjYsNDgsMTI0LDYsOSw0MiwxMzQsNzIsMTM0LDI0NywxMywxLDcsNiwxNjAsMTExLDQ4LDEwOSwyLDEsMCw0OCwxMDQsNiw5LDQyLDEzNCw3MiwxMzQsMjQ3LDEzLDEsNywxLDQ4LDMwLDYsOSw5NiwxMzQsNzIsMSwxMDEsMyw0LDEsNDYsNDgsMTcsNCwxMiwyMTUsMjQ2LDEyMCwyNTIsOTQsNzgsMjAsMjI1LDE4MywyMTIsMTgwLDU4LDIsMSwxNiwxMjgsNTksNjMsMTgwLDIzOCwzNSwxODAsMTcwLDEyNCwxOTAsMywxMjAsMjEsMTA3LDExMiwxNTMsMjQsMTE2LDgyLDE1OSwyOCwxLDg3LDEwNiw1LDI0NywxMTUsMTE2LDI0NSw1Myw2NCwzMSwxMTMsMTUyLDIxNiw4LDg4LDIzMiwxNjQsNzUsNTEsMjQsMTQyLDIwMSwyMTQsMTgsNjMsMTU3LDIyOCwzMywxMjEsMjUyLDMzLDIyMSwxMDAsMjcsNTksMTgsMTcsMTM3LDc4XX0=",
+      "target": [
+        "production",
+        "preview",
+        "development"
+      ],
+      "configurationId": null,
+      "createdAt": 1774516962679,
+      "updatedAt": 1774516962679,
+      "createdBy": "2Mg5mFM7Jk5MhHabWdQ0iQKk",
+      "updatedBy": null,
+      "id": "wNIUmUBmlLnNtHsU"
+    },
+    {
+      "type": "encrypted",
+      "key": "NEXT_PUBLIC_CLERK_SIGN_IN_URL",
+      "value": "eyJ2IjoidjIiLCJjIjoiMzUzT0pwcDVHQlFjQ3Q4bWpXZGE1Y2I2emhUVExHa244M3FCM3lqNjlranlKa1VWcWpoMlNuWlpnWEM3Nzk5aUFTSGdtMk5MZWswQkdiOEM2WHI0ZUpJN1RGSis0bjBYNXZuOWJZWjlSczA9IiwiayI6WzE4NCwxLDIsMywwLDEyMCwzNywyMTAsNDgsMTI5LDIxMSwxMDQsMTg1LDYsMjM4LDI3LDI1NSw1OCwyMDksMTQ2LDEyMywxMjYsMTkxLDE1OSwxNzIsMTYwLDkwLDE1NSwxMzUsMTIzLDIzNiwxMTUsMTk2LDMxLDkyLDEyOCwxMzEsMzMsMSw2MiwyNiwxNDksODksMTMxLDEzLDAsNSwyNTUsMTk0LDY2LDEwMywxNTEsMjYsNDEsODgsMCwwLDAsMTI2LDQ4LDEyNCw2LDksNDIsMTM0LDcyLDEzNCwyNDcsMTMsMSw3LDYsMTYwLDExMSw0OCwxMDksMiwxLDAsNDgsMTA0LDYsOSw0MiwxMzQsNzIsMTM0LDI0NywxMywxLDcsMSw0OCwzMCw2LDksOTYsMTM0LDcyLDEsMTAxLDMsNCwxLDQ2LDQ4LDE3LDQsMTIsMjE1LDI0NiwxMjAsMjUyLDk0LDc4LDIwLDIyNSwxODMsMjEyLDE4MCw1OCwyLDEsMTYsMTI4LDU5LDYzLDE4MCwyMzgsMzUsMTgwLDE3MCwxMjQsMTkwLDMsMTIwLDIxLDEwNywxMTIsMTUzLDI0LDExNiw4MiwxNTksMjgsMSw4NywxMDYsNSwyNDcsMTE1LDExNiwyNDUsNTMsNjQsMzEsMTEzLDE1MiwyMTYsOCw4OCwyMzIsMTY0LDc1LDUxLDI0LDE0MiwyMDEsMjE0LDE4LDYzLDE1NywyMjgsMzMsMTIxLDI1MiwzMywyMjEsMTAwLDI3LDU5LDE4LDE3LDEzNyw3OF19",
+      "target": [
+        "production",
+        "preview",
+        "development"
+      ],
+      "configurationId": null,
+      "createdAt": 1774516962679,
+      "updatedAt": 1774516962679,
+      "createdBy": "2Mg5mFM7Jk5MhHabWdQ0iQKk",
+      "updatedBy": null,
+      "id": "7pZc1aHgLpTQd7Fu"
+    },
+    {
+      "type": "encrypted",
+      "key": "NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL",
+      "value": "eyJ2IjoidjIiLCJjIjoiSnl1SkxiRThzUTczNDFaOVJxWVVhbW5CdlkrNXlSM3hjMkxVTHB5SjlsRmxYODBLNjJQaFBjVVZwTEdMVklCVEJsSXRzbVpBVHlwYUN4NWUrYWhhb2ZUYksrUT0iLCJrIjpbMTg0LDEsMiwzLDAsMTIwLDM3LDIxMCw0OCwxMjksMjExLDEwNCwxODUsNiwyMzgsMjcsMjU1LDU4LDIwOSwxNDYsMTIzLDEyNiwxOTEsMTU5LDE3MiwxNjAsOTAsMTU1LDEzNSwxMjMsMjM2LDExNSwxOTYsMzEsOTIsMTI4LDEzMSwzMywxLDE5OCwyMDUsMTMwLDEwNCwxMDgsNTksMTgxLDE2Miw5OSw0MSwyMTYsMTk2LDE2MywyNywxMjQsMTMsMCwwLDAsMTI2LDQ4LDEyNCw2LDksNDIsMTM0LDcyLDEzNCwyNDcsMTMsMSw3LDYsMTYwLDExMSw0OCwxMDksMiwxLDAsNDgsMTA0LDYsOSw0MiwxMzQsNzIsMTM0LDI0NywxMywxLDcsMSw0OCwzMCw2LDksOTYsMTM0LDcyLDEsMTAxLDMsNCwxLDQ2LDQ4LDE3LDQsMTIsMTczLDM2LDIyLDEyOCwxMDUsMTk5LDYsODksMTEyLDUwLDI0LDY2LDIsMSwxNiwxMjgsNTksMjQ2LDEyOCwxNjQsMTUyLDIwNCw1MCwyMjksNjksNDcsMjQ4LDI1Miw0MywyMDAsMjA5LDU4LDI1MiwyMTgsMTA3LDI0NSwxNTUsMTQ5LDU5LDIwOSwyMTIsNDksODUsNDUsMjIyLDE2NywxNSwxMTIsMTk3LDE3NywyNywyNDIsMjcsMTc2LDE0OSwxNTEsMTczLDMxLDUwLDE3NCw2NSwxNjEsMTIsMTc5LDkwLDkxLDE5NSw2NSwxODEsODAsMTQyLDI4LDEzLDIyNCwyMjQsMTYxXX0=",
+      "target": [
+        "production",
+        "preview",
+        "development"
+      ],
+      "configurationId": null,
+      "createdAt": 1774516962679,
+      "updatedAt": 1774516962679,
+      "createdBy": "2Mg5mFM7Jk5MhHabWdQ0iQKk",
+      "updatedBy": null,
+      "id": "GC7t2PgBG1lEWeBo"
+    },
+    {
+      "type": "encrypted",
+      "key": "NEXT_PUBLIC_CLERK_SIGN_UP_URL",
+      "value": "eyJ2IjoidjIiLCJjIjoiQVV6TkJtTzRNV21zSnlJeXBCdTJSNjgvaVl6RFFpSEQ0ZlZuamRra3EyUFhpb0lrYVBSa3dHM2NXd2Z2bWphL0N0YVlwcVF5MEhPOUxLQ0lITVc0ZkpYKzRqUzJka1JUTHZZRzdQTnl3dUk9IiwiayI6WzE4NCwxLDIsMywwLDEyMCwzNywyMTAsNDgsMTI5LDIxMSwxMDQsMTg1LDYsMjM4LDI3LDI1NSw1OCwyMDksMTQ2LDEyMywxMjYsMTkxLDE1OSwxNzIsMTYwLDkwLDE1NSwxMzUsMTIzLDIzNiwxMTUsMTk2LDMxLDkyLDEyOCwxMzEsMzMsMSw2MiwyNiwxNDksODksMTMxLDEzLDAsNSwyNTUsMTk0LDY2LDEwMywxNTEsMjYsNDEsODgsMCwwLDAsMTI2LDQ4LDEyNCw2LDksNDIsMTM0LDcyLDEzNCwyNDcsMTMsMSw3LDYsMTYwLDExMSw0OCwxMDksMiwxLDAsNDgsMTA0LDYsOSw0MiwxMzQsNzIsMTM0LDI0NywxMywxLDcsMSw0OCwzMCw2LDksOTYsMTM0LDcyLDEsMTAxLDMsNCwxLDQ2LDQ4LDE3LDQsMTIsMjE1LDI0NiwxMjAsMjUyLDk0LDc4LDIwLDIyNSwxODMsMjEyLDE4MCw1OCwyLDEsMTYsMTI4LDU5LDYzLDE4MCwyMzgsMzUsMTgwLDE3MCwxMjQsMTkwLDMsMTIwLDIxLDEwNywxMTIsMTUzLDI0LDExNiw4MiwxNTksMjgsMSw4NywxMDYsNSwyNDcsMTE1LDExNiwyNDUsNTMsNjQsMzEsMTEzLDE1MiwyMTYsOCw4OCwyMzIsMTY0LDc1LDUxLDI0LDE0MiwyMDEsMjE0LDE4LDYzLDE1NywyMjgsMzMsMTIxLDI1MiwzMywyMjEsMTAwLDI3LDU5LDE4LDE3LDEzNyw3OF19",
+      "target": [
+        "production",
+        "preview",
+        "development"
+      ],
+      "configurationId": null,
+      "createdAt": 1774516962679,
+      "updatedAt": 1774516962679,
+      "createdBy": "2Mg5mFM7Jk5MhHabWdQ0iQKk",
+      "updatedBy": null,
+      "id": "Vgj6PK9VnG3jVUnj"
+    },
+    {
+      "type": "encrypted",
+      "key": "NEXT_PUBLIC_CONVEX_SITE_URL",
+      "value": "eyJ2IjoidjIiLCJjIjoiMVd5NUVBMVBaUEhCM3FOdUpiNXdaYXdwbTFaTVpzUE9yMDU2T3RjTzlVWjJ5UDZONVhKT09LeG41am5kcEw4Q3VLVmkxNi9Kdy9YaWFPMTZrYU5INHdsdmhhTmcwZmUxTS9mQ092d1JYbkM0WTc4aUlZYVUvV0lhVDA5N3hVMzhUVGowTFdqcUpKdHEwYllTVi9JZmkvbnNsKytQaHJMTDl5TTBCZGd6bmpMd3dNc0FLa0ptSlZOTFpoVT0iLCJrIjpbMTg0LDEsMiwzLDAsMTIwLDM3LDIxMCw0OCwxMjksMjExLDEwNCwxODUsNiwyMzgsMjcsMjU1LDU4LDIwOSwxNDYsMTIzLDEyNiwxOTEsMTU5LDE3MiwxNjAsOTAsMTU1LDEzNSwxMjMsMjM2LDExNSwxOTYsMzEsOTIsMTI4LDEzMSwzMywxLDYyLDI2LDE0OSw4OSwxMzEsMTMsMCw1LDI1NSwxOTQsNjYsMTAzLDE1MSwyNiw0MSw4OCwwLDAsMCwxMjYsNDgsMTI0LDYsOSw0MiwxMzQsNzIsMTM0LDI0NywxMywxLDcsNiwxNjAsMTExLDQ4LDEwOSwyLDEsMCw0OCwxMDQsNiw5LDQyLDEzNCw3MiwxMzQsMjQ3LDEzLDEsNywxLDQ4LDMwLDYsOSw5NiwxMzQsNzIsMSwxMDEsMyw0LDEsNDYsNDgsMTcsNCwxMiwyMTUsMjQ2LDEyMCwyNTIsOTQsNzgsMjAsMjI1LDE4MywyMTIsMTgwLDU4LDIsMSwxNiwxMjgsNTksNjMsMTgwLDIzOCwzNSwxODAsMTcwLDEyNCwxOTAsMywxMjAsMjEsMTA3LDExMiwxNTMsMjQsMTE2LDgyLDE1OSwyOCwxLDg3LDEwNiw1LDI0NywxMTUsMTE2LDI0NSw1Myw2NCwzMSwxMTMsMTUyLDIxNiw4LDg4LDIzMiwxNjQsNzUsNTEsMjQsMTQyLDIwMSwyMTQsMTgsNjMsMTU3LDIyOCwzMywxMjEsMjUyLDMzLDIyMSwxMDAsMjcsNTksMTgsMTcsMTM3LDc4XX0=",
+      "target": [
+        "production",
+        "preview",
+        "development"
+      ],
+      "configurationId": null,
+      "createdAt": 1774516962679,
+      "updatedAt": 1774516962679,
+      "createdBy": "2Mg5mFM7Jk5MhHabWdQ0iQKk",
+      "updatedBy": null,
+      "id": "CW9tmXSay6k661cb"
+    },
+    {
+      "type": "encrypted",
+      "key": "NEXT_PUBLIC_CONVEX_URL",
+      "value": "eyJ2IjoidjIiLCJjIjoiSHFVQlVXVGpDdFQ0czNCdC9vYUsxTkRmWXl4OWI1MDBNMllMbExIc3NTLzNua3pRSEozYUdXb1ErSHAxRWRRa2tnTmcyTUEzZW1ueDBLRFhtdGUyRmQ5TlptWXhKQkFVR3J2WUlCdFpOZVFMb0pGaEIwRzJHQVNyRXpEam1CWnltNFc2enF5QmliU3NKMHJIbkZDMUNvSmk3cS9oaWIzTElidlI0dmVReVg4TFo4MWZzQ3pJYzhKSUc2cz0iLCJrIjpbMTg0LDEsMiwzLDAsMTIwLDM3LDIxMCw0OCwxMjksMjExLDEwNCwxODUsNiwyMzgsMjcsMjU1LDU4LDIwOSwxNDYsMTIzLDEyNiwxOTEsMTU5LDE3MiwxNjAsOTAsMTU1LDEzNSwxMjMsMjM2LDExNSwxOTYsMzEsOTIsMTI4LDEzMSwzMywxLDYyLDI2LDE0OSw4OSwxMzEsMTMsMCw1LDI1NSwxOTQsNjYsMTAzLDE1MSwyNiw0MSw4OCwwLDAsMCwxMjYsNDgsMTI0LDYsOSw0MiwxMzQsNzIsMTM0LDI0NywxMywxLDcsNiwxNjAsMTExLDQ4LDEwOSwyLDEsMCw0OCwxMDQsNiw5LDQyLDEzNCw3MiwxMzQsMjQ3LDEzLDEsNywxLDQ4LDMwLDYsOSw5NiwxMzQsNzIsMSwxMDEsMyw0LDEsNDYsNDgsMTcsNCwxMiwyMTUsMjQ2LDEyMCwyNTIsOTQsNzgsMjAsMjI1LDE4MywyMTIsMTgwLDU4LDIsMSwxNiwxMjgsNTksNjMsMTgwLDIzOCwzNSwxODAsMTcwLDEyNCwxOTAsMywxMjAsMjEsMTA3LDExMiwxNTMsMjQsMTE2LDgyLDE1OSwyOCwxLDg3LDEwNiw1LDI0NywxMTUsMTE2LDI0NSw1Myw2NCwzMSwxMTMsMTUyLDIxNiw4LDg4LDIzMiwxNjQsNzUsNTEsMjQsMTQyLDIwMSwyMTQsMTgsNjMsMTU3LDIyOCwzMywxMjEsMjUyLDMzLDIyMSwxMDAsMjcsNTksMTgsMTcsMTM3LDc4XX0=",
+      "target": [
+        "production",
+        "preview",
+        "development"
+      ],
+      "configurationId": null,
+      "createdAt": 1774516962679,
+      "updatedAt": 1774516962679,
+      "createdBy": "2Mg5mFM7Jk5MhHabWdQ0iQKk",
+      "updatedBy": null,
+      "id": "g7WOt5cIHcvUmoQq"
+    },
+    {
+      "type": "system",
+      "key": "VERCEL_OIDC_TOKEN",
+      "value": "VERCEL_OIDC_TOKEN",
+      "target": [
+        "production",
+        "preview",
+        "development"
+      ],
+      "configurationId": null,
+      "createdAt": 1774516962679,
+      "updatedAt": 1774516962679,
+      "createdBy": "2Mg5mFM7Jk5MhHabWdQ0iQKk",
+      "updatedBy": null,
+      "id": "agWcY47rImpPWDq6"
+    },
+    {
+      "type": "encrypted",
+      "key": "CONVEX_DEPLOYMENT",
+      "value": "eyJ2IjoidjIiLCJjIjoiT2FPcEg5am9PNWFndkc4SU8vMzlsUnBRaWt2REZZOUtCWllRVW9HR3BTcTRNY1ludjFHNjl6d2NXcUM0U3puL1VwZmpWMUIxbU9KekMwZHpGZC9XOWVXNy9QOFJDY1hIVWhBRjl1NzlUbkZZMlluUUtQcEtWbkhkRTRXT0dFeWhibUtCczJObTBMdDRQbnNGUTdkaHRRPT0iLCJrIjpbMTg0LDEsMiwzLDAsMTIwLDM3LDIxMCw0OCwxMjksMjExLDEwNCwxODUsNiwyMzgsMjcsMjU1LDU4LDIwOSwxNDYsMTIzLDEyNiwxOTEsMTU5LDE3MiwxNjAsOTAsMTU1LDEzNSwxMjMsMjM2LDExNSwxOTYsMzEsOTIsMTI4LDEzMSwzMywxLDYyLDI2LDE0OSw4OSwxMzEsMTMsMCw1LDI1NSwxOTQsNjYsMTAzLDE1MSwyNiw0MSw4OCwwLDAsMCwxMjYsNDgsMTI0LDYsOSw0MiwxMzQsNzIsMTM0LDI0NywxMywxLDcsNiwxNjAsMTExLDQ4LDEwOSwyLDEsMCw0OCwxMDQsNiw5LDQyLDEzNCw3MiwxMzQsMjQ3LDEzLDEsNywxLDQ4LDMwLDYsOSw5NiwxMzQsNzIsMSwxMDEsMyw0LDEsNDYsNDgsMTcsNCwxMiwyMTUsMjQ2LDEyMCwyNTIsOTQsNzgsMjAsMjI1LDE4MywyMTIsMTgwLDU4LDIsMSwxNiwxMjgsNTksNjMsMTgwLDIzOCwzNSwxODAsMTcwLDEyNCwxOTAsMywxMjAsMjEsMTA3LDExMiwxNTMsMjQsMTE2LDgyLDE1OSwyOCwxLDg3LDEwNiw1LDI0NywxMTUsMTE2LDI0NSw1Myw2NCwzMSwxMTMsMTUyLDIxNiw4LDg4LDIzMiwxNjQsNzUsNTEsMjQsMTQyLDIwMSwyMTQsMTgsNjMsMTU3LDIyOCwzMywxMjEsMjUyLDMzLDIyMSwxMDAsMjcsNTksMTgsMTcsMTM3LDc4XX0=",
+      "target": [
+        "production",
+        "preview",
+        "development"
+      ],
+      "configurationId": null,
+      "createdAt": 1774516962679,
+      "updatedAt": 1774516962679,
+      "createdBy": "2Mg5mFM7Jk5MhHabWdQ0iQKk",
+      "updatedBy": null,
+      "id": "6BtPKXd0TgB0YCQb"
+    },
+    {
+      "type": "encrypted",
+      "key": "OPENAI_API_KEY",
+      "value": "eyJ2IjoidjIiLCJjIjoiUy9qbVpoVUZpU1lUSnd3Y2wwcGVoOXBlMEtKOTQwTE94UnpaZkExVWo0R3lXNmpEMWxZbXh6ZFoxS0lQbktST1hMRlVheTV1ZEdFaldrTTJjUStibnZsSy9iLzUyRkZMNnIva3VvQzV4cUlaWDF1cXkvMjIyNWptSUhVN1NXdFk0OWd4dFJYMlRHNDNlRFVCTWNjWC81YXFkNUFoNzBXeUMwWk4xUitiSUpiR1M4L25GU0JVdCsrMWlzclF5dkQrIiwiayI6WzE4NCwxLDIsMywwLDEyMCwzNywyMTAsNDgsMTI5LDIxMSwxMDQsMTg1LDYsMjM4LDI3LDI1NSw1OCwyMDksMTQ2LDEyMywxMjYsMTkxLDE1OSwxNzIsMTYwLDkwLDE1NSwxMzUsMTIzLDIzNiwxMTUsMTk2LDMxLDkyLDEyOCwxMzEsMzMsMSwxOTgsMjA1LDEzMCwxMDQsMTA4LDU5LDE4MSwxNjIsOTksNDEsMjE2LDE5NiwxNjMsMjcsMTI0LDEzLDAsMCwwLDEyNiw0OCwxMjQsNiw5LDQyLDEzNCw3MiwxMzQsMjQ3LDEzLDEsNyw2LDE2MCwxMTEsNDgsMTA5LDIsMSwwLDQ4LDEwNCw2LDksNDIsMTM0LDcyLDEzNCwyNDcsMTMsMSw3LDEsNDgsMzAsNiw5LDk2LDEzNCw3MiwxLDEwMSwzLDQsMSw0Niw0OCwxNyw0LDEyLDE3MywzNiwyMiwxMjgsMTA1LDE5OSw2LDg5LDExMiw1MCwyNCw2NiwyLDEsMTYsMTI4LDU5LDI0NiwxMjgsMTY0LDE1MiwyMDQsNTAsMjI5LDY5LDQ3LDI0OCwyNTIsNDMsMjAwLDIwOSw1OCwyNTIsMjE4LDEwNywyNDUsMTU1LDE0OSw1OSwyMDksMjEyLDQ5LDg1LDQ1LDIyMiwxNjcsMTUsMTEyLDE5NywxNzcsMjcsMjQyLDI3LDE3NiwxNDksMTUxLDE3MywzMSw1MCwxNzQsNjUsMTYxLDEyLDE3OSw5MCw5MSwxOTUsNjUsMTgxLDgwLDE0MiwyOCwxMywyMjQsMjI0LDE2MV19",
+      "target": [
+        "production",
+        "preview",
+        "development"
+      ],
+      "configurationId": null,
+      "createdAt": 1774516962679,
+      "updatedAt": 1774516962679,
+      "createdBy": "2Mg5mFM7Jk5MhHabWdQ0iQKk",
+      "updatedBy": null,
+      "id": "5eLqouUvFhAwdOQM"
+    }
+  ],
+  "framework": "nextjs",
+  "gitForkProtection": true,
+  "gitLFS": false,
+  "id": "prj_omANKVQy54r2EaHtzC38YaoqdDgC",
+  "installCommand": "npm install",
+  "lastRollbackTarget": null,
+  "lastAliasRequest": null,
+  "name": "nova-no-code-virtual-agents-f8ds",
+  "nodeVersion": "24.x",
+  "outputDirectory": null,
+  "productionDeploymentsFastLane": true,
+  "publicSource": null,
+  "defaultResourceConfig": {
+    "fluid": true,
+    "functionDefaultRegions": [
+      "iad1"
+    ],
+    "functionDefaultTimeout": 300,
+    "functionDefaultMemoryType": "standard",
+    "functionZeroConfigFailover": false,
+    "elasticConcurrencyEnabled": false
+  },
+  "resourceConfig": {
+    "fluid": true,
+    "functionDefaultRegions": [
+      "iad1"
+    ]
+  },
+  "rootDirectory": "nova-no-code-virtual-agents",
+  "serverlessFunctionRegion": "iad1",
+  "sourceFilesOutsideRootDirectory": true,
+  "ssoProtection": null,
+  "updatedAt": 1775332808288,
+  "live": false,
+  "enableExternalRewriteCaching": false,
+  "gitComments": {
+    "onCommit": false,
+    "onPullRequest": true
+  },
+  "gitProviderOptions": {
+    "createDeployments": "enabled"
+  },
+  "webAnalytics": {
+    "id": "VP9gm6qegCmurSI9fUuHwxeqD"
+  },
+  "oidcTokenConfig": {
+    "enabled": true,
+    "issuerMode": "global"
+  },
+  "hasDeployments": true,
+  "link": {
+    "type": "github",
+    "repo": "NOVA-No-code-virtual-agents",
+    "repoId": 1191997358,
+    "org": "Yash-Devdhe",
+    "repoOwnerId": 176090677,
+    "gitCredentialId": "cred_e9585e80f4d2053bc26bbdda4b664a6e90b6c8c2",
+    "productionBranch": "main",
+    "sourceless": true,
+    "createdAt": 1774516962677,
+    "updatedAt": 1774516962677,
+    "deployHooks": []
+  },
+  "latestDeployments": [
+    {
+      "alias": [
+        "nova-no-code-virtual-agents-f8ds.vercel.app",
+        "nova-no-code-virtual-agents-f8ds-yash-devdhes-projects.vercel.app"
+      ],
+      "aliasAssigned": 1775332808086,
+      "aliasError": null,
+      "automaticAliases": [
+        "nova-no-code-virtual-agents-f8ds-yash-devdhes-projects.vercel.app"
+      ],
+      "builds": [],
+      "createdAt": 1775332762019,
+      "createdIn": "sfo1",
+      "creator": {
+        "uid": "2Mg5mFM7Jk5MhHabWdQ0iQKk",
+        "email": "devdheyash@gmail.com",
+        "username": "yash-devdhe"
+      },
+      "deploymentHostname": "nova-no-code-virtual-agents-f8ds-nxpm15v2d",
+      "forced": false,
+      "id": "dpl_AzxJogXRUuNMfNDFpzay15vz5T5q",
+      "meta": {
+        "githubCommitAuthorName": "Yash Devdhe",
+        "githubCommitAuthorEmail": "devdheyash@gmail.com",
+        "githubCommitMessage": "Fix CSS encoding issue and remove inline @xyflow style imports; correct layout outfit class name.",
+        "githubCommitOrg": "Yash-Devdhe",
+        "githubCommitRef": "main",
+        "githubCommitRepo": "NOVA-No-code-virtual-agents",
+        "githubCommitSha": "24603d982486b93e6ec70f85f6b10a7aa77c63d6",
+        "githubDeployment": "1",
+        "githubOrg": "Yash-Devdhe",
+        "githubRepo": "NOVA-No-code-virtual-agents",
+        "gitDirty": "1",
+        "lambdaRuntimeStats": "{\"nodejs\":5}"
+      },
+      "name": "nova-no-code-virtual-agents-f8ds",
+      "plan": "hobby",
+      "private": true,
+      "readyState": "READY",
+      "readySubstate": "PROMOTED",
+      "target": "production",
+      "teamId": "team_6083opohBEFhWkBozXr1mZiM",
+      "type": "LAMBDAS",
+      "url": "nova-no-code-virtual-agents-f8ds-nxpm15v2d.vercel.app",
+      "userId": "2Mg5mFM7Jk5MhHabWdQ0iQKk",
+      "withCache": false,
+      "buildingAt": 1775332763934,
+      "readyAt": 1775332807895,
+      "previewCommentsEnabled": true,
+      "oidcTokenClaims": {
+        "sub": "owner:yash-devdhes-projects:project:nova-no-code-virtual-agents-f8ds:environment:production",
+        "iss": "https://oidc.vercel.com",
+        "scope": "owner:yash-devdhes-projects:project:nova-no-code-virtual-agents-f8ds:environment:production",
+        "aud": "https://vercel.com/yash-devdhes-projects",
+        "owner": "yash-devdhes-projects",
+        "owner_id": "team_6083opohBEFhWkBozXr1mZiM",
+        "project": "nova-no-code-virtual-agents-f8ds",
+        "project_id": "prj_omANKVQy54r2EaHtzC38YaoqdDgC",
+        "environment": "production",
+        "plan": "hobby"
+      }
+    },
+    {
+      "alias": [
+        "nova-no-code-virtual-agents-f8ds.vercel.app",
+        "nova-no-code-virtual-agents-f8ds-yash-devdhes-projects.vercel.app"
+      ],
+      "aliasAssigned": 1775289665438,
+      "aliasError": null,
+      "automaticAliases": [
+        "nova-no-code-virtual-agents-f8ds-yash-devdhes-projects.vercel.app"
+      ],
+      "builds": [],
+      "createdAt": 1775289623038,
+      "createdIn": "sfo1",
+      "creator": {
+        "uid": "2Mg5mFM7Jk5MhHabWdQ0iQKk",
+        "email": "devdheyash@gmail.com",
+        "username": "yash-devdhe"
+      },
+      "deploymentHostname": "nova-no-code-virtual-agents-f8ds-nebpj4dpd",
+      "forced": false,
+      "id": "dpl_Gmq9G1qZah3Z5W94i5c81bgWmw2f",
+      "meta": {
+        "githubCommitAuthorName": "Yash Devdhe",
+        "githubCommitAuthorEmail": "devdheyash@gmail.com",
+        "githubCommitMessage": "Fix CSS encoding issue and remove inline @xyflow style imports; correct layout outfit class name.",
+        "githubCommitOrg": "Yash-Devdhe",
+        "githubCommitRef": "main",
+        "githubCommitRepo": "NOVA-No-code-virtual-agents",
+        "githubCommitSha": "24603d982486b93e6ec70f85f6b10a7aa77c63d6",
+        "githubDeployment": "1",
+        "githubOrg": "Yash-Devdhe",
+        "githubRepo": "NOVA-No-code-virtual-agents",
+        "gitDirty": "1",
+        "lambdaRuntimeStats": "{\"nodejs\":5}"
+      },
+      "name": "nova-no-code-virtual-agents-f8ds",
+      "plan": "hobby",
+      "private": true,
+      "readyState": "READY",
+      "readySubstate": "PROMOTED",
+      "target": "production",
+      "teamId": "team_6083opohBEFhWkBozXr1mZiM",
+      "type": "LAMBDAS",
+      "url": "nova-no-code-virtual-agents-f8ds-nebpj4dpd.vercel.app",
+      "userId": "2Mg5mFM7Jk5MhHabWdQ0iQKk",
+      "withCache": false,
+      "buildingAt": 1775289624122,
+      "readyAt": 1775289665254,
+      "previewCommentsEnabled": true,
+      "oidcTokenClaims": {
+        "sub": "owner:yash-devdhes-projects:project:nova-no-code-virtual-agents-f8ds:environment:production",
+        "iss": "https://oidc.vercel.com",
+        "scope": "owner:yash-devdhes-projects:project:nova-no-code-virtual-agents-f8ds:environment:production",
+        "aud": "https://vercel.com/yash-devdhes-projects",
+        "owner": "yash-devdhes-projects",
+        "owner_id": "team_6083opohBEFhWkBozXr1mZiM",
+        "project": "nova-no-code-virtual-agents-f8ds",
+        "project_id": "prj_omANKVQy54r2EaHtzC38YaoqdDgC",
+        "environment": "production",
+        "plan": "hobby"
+      }
+    }
+  ],
+  "targets": {
+    "production": {
+      "alias": [
+        "nova-no-code-virtual-agents-f8ds.vercel.app",
+        "nova-no-code-virtual-agents-f8ds-yash-devdhes-projects.vercel.app"
+      ],
+      "aliasAssigned": 1775332808086,
+      "aliasError": null,
+      "automaticAliases": [
+        "nova-no-code-virtual-agents-f8ds-yash-devdhes-projects.vercel.app"
+      ],
+      "builds": [],
+      "createdAt": 1775332762019,
+      "createdIn": "sfo1",
+      "creator": {
+        "uid": "2Mg5mFM7Jk5MhHabWdQ0iQKk",
+        "email": "devdheyash@gmail.com",
+        "username": "yash-devdhe"
+      },
+      "deploymentHostname": "nova-no-code-virtual-agents-f8ds-nxpm15v2d",
+      "forced": false,
+      "id": "dpl_AzxJogXRUuNMfNDFpzay15vz5T5q",
+      "meta": {
+        "githubCommitAuthorName": "Yash Devdhe",
+        "githubCommitAuthorEmail": "devdheyash@gmail.com",
+        "githubCommitMessage": "Fix CSS encoding issue and remove inline @xyflow style imports; correct layout outfit class name.",
+        "githubCommitOrg": "Yash-Devdhe",
+        "githubCommitRef": "main",
+        "githubCommitRepo": "NOVA-No-code-virtual-agents",
+        "githubCommitSha": "24603d982486b93e6ec70f85f6b10a7aa77c63d6",
+        "githubDeployment": "1",
+        "githubOrg": "Yash-Devdhe",
+        "githubRepo": "NOVA-No-code-virtual-agents",
+        "gitDirty": "1",
+        "lambdaRuntimeStats": "{\"nodejs\":5}"
+      },
+      "name": "nova-no-code-virtual-agents-f8ds",
+      "plan": "hobby",
+      "private": true,
+      "readyState": "READY",
+      "readySubstate": "PROMOTED",
+      "target": "production",
+      "teamId": "team_6083opohBEFhWkBozXr1mZiM",
+      "type": "LAMBDAS",
+      "url": "nova-no-code-virtual-agents-f8ds-nxpm15v2d.vercel.app",
+      "userId": "2Mg5mFM7Jk5MhHabWdQ0iQKk",
+      "withCache": false,
+      "buildingAt": 1775332763934,
+      "readyAt": 1775332807895,
+      "previewCommentsEnabled": true,
+      "oidcTokenClaims": {
+        "sub": "owner:yash-devdhes-projects:project:nova-no-code-virtual-agents-f8ds:environment:production",
+        "iss": "https://oidc.vercel.com",
+        "scope": "owner:yash-devdhes-projects:project:nova-no-code-virtual-agents-f8ds:environment:production",
+        "aud": "https://vercel.com/yash-devdhes-projects",
+        "owner": "yash-devdhes-projects",
+        "owner_id": "team_6083opohBEFhWkBozXr1mZiM",
+        "project": "nova-no-code-virtual-agents-f8ds",
+        "project_id": "prj_omANKVQy54r2EaHtzC38YaoqdDgC",
+        "environment": "production",
+        "plan": "hobby"
+      }
+    },
+    "preview": {
+      "alias": [],
+      "aliasAssigned": 1774953102721,
+      "aliasError": null,
+      "automaticAliases": [],
+      "builds": [],
+      "createdAt": 1774953021709,
+      "createdIn": "sfo1",
+      "creator": {
+        "uid": "2Mg5mFM7Jk5MhHabWdQ0iQKk",
+        "email": "devdheyash@gmail.com",
+        "username": "yash-devdhe"
+      },
+      "deploymentHostname": "nova-no-code-virtual-agents-f8ds-1xsw4tdzn",
+      "forced": true,
+      "id": "dpl_L93jshzHZgvpXyuRLcEisU4RNjRA",
+      "meta": {
+        "githubCommitAuthorName": "Yash Devdhe",
+        "githubCommitAuthorEmail": "devdheyash@gmail.com",
+        "githubCommitMessage": "Fix remaining syntax errors in nested AgentPreviewModal.tsx",
+        "githubCommitOrg": "Yash-Devdhe",
+        "githubCommitRef": "main",
+        "githubCommitRepo": "NOVA-No-code-virtual-agents",
+        "githubCommitSha": "83912eff55fd557e36538cae6a45103a7d57e461",
+        "githubDeployment": "1",
+        "githubOrg": "Yash-Devdhe",
+        "githubRepo": "NOVA-No-code-virtual-agents",
+        "gitDirty": "1",
+        "lambdaRuntimeStats": "{\"nodejs\":5}",
+        "action": "redeploy",
+        "originalDeploymentId": "dpl_BMeHCukbPebGeoNL2xaMTXMttnvE"
+      },
+      "name": "nova-no-code-virtual-agents-f8ds",
+      "plan": "hobby",
+      "private": true,
+      "readyState": "READY",
+      "readySubstate": "STAGED",
+      "target": null,
+      "teamId": "team_6083opohBEFhWkBozXr1mZiM",
+      "type": "LAMBDAS",
+      "url": "nova-no-code-virtual-agents-f8ds-1xsw4tdzn.vercel.app",
+      "userId": "2Mg5mFM7Jk5MhHabWdQ0iQKk",
+      "withCache": false,
+      "buildingAt": 1774953022651,
+      "readyAt": 1774953102593,
+      "previewCommentsEnabled": true,
+      "oidcTokenClaims": {
+        "sub": "owner:yash-devdhes-projects:project:nova-no-code-virtual-agents-f8ds:environment:preview",
+        "iss": "https://oidc.vercel.com",
+        "scope": "owner:yash-devdhes-projects:project:nova-no-code-virtual-agents-f8ds:environment:preview",
+        "aud": "https://vercel.com/yash-devdhes-projects",
+        "owner": "yash-devdhes-projects",
+        "owner_id": "team_6083opohBEFhWkBozXr1mZiM",
+        "project": "nova-no-code-virtual-agents-f8ds",
+        "project_id": "prj_omANKVQy54r2EaHtzC38YaoqdDgC",
+        "environment": "preview",
+        "plan": "hobby"
+      }
+    }
+  },
+  "features": {
+    "webAnalytics": false
+  }
+}
+

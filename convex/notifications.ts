@@ -31,7 +31,7 @@ export const GetUserNotifications = query({
   },
   handler: async (ctx, args) => {
     const result = await ctx.db.query('NotificationsTable')
-      .filter(q => q.eq(q.field('userId'), args.userId))
+      .withIndex("by_userId_and_createdAt", (q) => q.eq("userId", args.userId))
       .order('desc')
       .take(50);
     return result;
@@ -45,11 +45,10 @@ export const GetUnreadCount = query({
   },
   handler: async (ctx, args) => {
     const result = await ctx.db.query('NotificationsTable')
-      .filter(q => q.and(
-        q.eq(q.field('userId'), args.userId),
-        q.eq(q.field('isRead'), false)
-      ))
-      .collect();
+      .withIndex("by_userId_and_isRead", (q) =>
+        q.eq("userId", args.userId).eq("isRead", false)
+      )
+      .take(100);
     return result.length;
   },
 });
@@ -74,11 +73,10 @@ export const MarkAllAsRead = mutation({
   },
   handler: async (ctx, args) => {
     const notifications = await ctx.db.query('NotificationsTable')
-      .filter(q => q.and(
-        q.eq(q.field('userId'), args.userId),
-        q.eq(q.field('isRead'), false)
-      ))
-      .collect();
+      .withIndex("by_userId_and_isRead", (q) =>
+        q.eq("userId", args.userId).eq("isRead", false)
+      )
+      .take(100);
     
     for (const notification of notifications) {
       await ctx.db.patch(notification._id, {

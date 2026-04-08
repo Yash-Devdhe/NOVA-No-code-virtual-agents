@@ -8,7 +8,9 @@ export const CreateNewUser=mutation({
         email:v.string()
     },
     handler:async (ctx,args)=>{
-        const user =await ctx.db.query('UserTable').filter((q)=>q.eq(q.field('email'),args.email)).collect();
+        const user =await ctx.db.query('UserTable')
+            .withIndex("by_email", (q) => q.eq("email", args.email))
+            .take(1);
         if(user?.length===0){
             const userData={
                 name:args.name,
@@ -33,8 +35,8 @@ export const GetUserByEmail = query({
     },
     handler: async (ctx, args) => {
         const user = await ctx.db.query('UserTable')
-            .filter(q => q.eq(q.field('email'), args.email))
-            .first();
+            .withIndex("by_email", (q) => q.eq("email", args.email))
+            .unique();
         return user;
     },
 })

@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { useConvex } from "convex/react";
+import React, { useRef, useState } from "react";
+import { useMutation, useQuery } from "convex/react";
+import { Bell, Check, CheckCircle, ExternalLink, Image, Info, Trash2, AlertCircle } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { UserDetailContext } from "@/context/UserDetailsContext";
-import { Bell, X, Check, Trash2, ExternalLink, Info, CheckCircle, AlertCircle, Image } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Notification {
   _id: string;
@@ -18,74 +19,30 @@ interface Notification {
   createdAt: number;
 }
 
-import { useToast } from "@/components/ui/use-toast";
-
 const NotificationBell = () => {
-  const { toast } = useToast()
-  const convex = useConvex();
+  const { toast } = useToast();
   const { userDetail } = React.useContext(UserDetailContext);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const userId = userDetail?._id as Id<"UserTable"> | undefined;
+  const queryArgs = userId ? { userId } : "skip";
+  const notifications = (useQuery(api.notifications.GetUserNotifications, queryArgs) || []) as Notification[];
+  const unreadCount = useQuery(api.notifications.GetUnreadCount, queryArgs) || 0;
+
+  const markAsRead = useMutation(api.notifications.MarkAsRead);
+  const markAllAsRead = useMutation(api.notifications.MarkAllAsRead);
+  const deleteNotification = useMutation(api.notifications.DeleteNotification);
 
   const logConvexError = (error: unknown, action: string) => {
     toast({
       title: `${action} failed`,
       description: error instanceof Error ? error.message : String(error),
       variant: "destructive",
-    })
+    });
   };
 
-  // Fetch notifications
-  useEffect(() => {
-    if (!userDetail?._id) return;
-    let isCancelled = false;
-
-    const fetchNotifications = async () => {
-      try {
-        const result = await convex.query(api.notifications.GetUserNotifications, {
-          userId: userDetail._id as Id<"UserTable">,
-        });
-        if (!isCancelled) {
-          setNotifications(result || []);
-        }
-      } catch (error) {
-        if (!isCancelled) {
-          setNotifications([]);
-        }
-        logConvexError(error, "Fetch notifications");
-      }
-    };
-
-    const fetchUnreadCount = async () => {
-      try {
-        const count = await convex.query(api.notifications.GetUnreadCount, {
-          userId: userDetail._id as Id<"UserTable">,
-        });
-        if (!isCancelled) {
-          setUnreadCount(count || 0);
-        }
-      } catch (error) {
-        if (!isCancelled) {
-          setUnreadCount(0);
-        }
-        logConvexError(error, "Fetch unread count");
-      }
-    };
-
-    void Promise.all([fetchNotifications(), fetchUnreadCount()]);
-
-    // Poll for new notifications every 30 seconds
-    const interval = setInterval(fetchUnreadCount, 30000);
-    return () => {
-      isCancelled = true;
-      clearInterval(interval);
-    };
-  }, [userDetail, convex]);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
+  React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
@@ -98,26 +55,21 @@ const NotificationBell = () => {
 
   const handleMarkAsRead = async (notificationId: string) => {
     try {
-      await convex.mutation(api.notifications.MarkAsRead, {
+      await markAsRead({
         notificationId: notificationId as Id<"NotificationsTable">,
       });
-      setNotifications(notifications.map(n =>
-        n._id === notificationId ? { ...n, isRead: true } : n
-      ));
-      setUnreadCount(Math.max(0, unreadCount - 1));
     } catch (error) {
       logConvexError(error, "Mark as read");
     }
   };
 
   const handleMarkAllAsRead = async () => {
-    if (!userDetail?._id) return;
+    if (!userId) return;
+
     try {
-      await convex.mutation(api.notifications.MarkAllAsRead, {
-        userId: userDetail._id as Id<"UserTable">,
+      await markAllAsRead({
+        userId,
       });
-      setNotifications(notifications.map(n => ({ ...n, isRead: true })));
-      setUnreadCount(0);
     } catch (error) {
       logConvexError(error, "Mark all as read");
     }
@@ -125,14 +77,9 @@ const NotificationBell = () => {
 
   const handleDelete = async (notificationId: string) => {
     try {
-      await convex.mutation(api.notifications.DeleteNotification, {
+      await deleteNotification({
         notificationId: notificationId as Id<"NotificationsTable">,
       });
-      const deleted = notifications.find(n => n._id === notificationId);
-      setNotifications(notifications.filter(n => n._id !== notificationId));
-      if (deleted && !deleted.isRead) {
-        setUnreadCount(Math.max(0, unreadCount - 1));
-      }
     } catch (error) {
       logConvexError(error, "Delete notification");
     }
@@ -170,30 +117,27 @@ const NotificationBell = () => {
 
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Bell Button */}
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-full hover:bg-white/10 transition-colors"
+        className="relative rounded-full p-2 transition-colors hover:bg-white/10"
       >
         <Bell className="h-5 w-5 text-white" />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 text-[10px] text-white font-bold items-center justify-center">
+          <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+            <span className="relative inline-flex h-3 w-3 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           </span>
         )}
       </button>
 
-      {/* Dropdown */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden">
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-slate-800 to-slate-900">
-            <h3 className="text-white font-semibold">Notifications</h3>
+        <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xl">
+          <div className="flex items-center justify-between bg-gradient-to-r from-slate-800 to-slate-900 px-4 py-3">
+            <h3 className="font-semibold text-white">Notifications</h3>
             {unreadCount > 0 && (
-              <button 
+              <button
                 onClick={handleMarkAllAsRead}
                 className="text-xs text-blue-300 hover:text-white"
               >
@@ -202,35 +146,34 @@ const NotificationBell = () => {
             )}
           </div>
 
-          {/* Notifications List */}
           <div className="max-h-96 overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="p-8 text-center text-gray-500">
-                <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <Bell className="mx-auto mb-2 h-8 w-8 opacity-50" />
                 <p>No notifications yet</p>
               </div>
             ) : (
               notifications.map((notification) => (
-                <div 
+                <div
                   key={notification._id}
-                  className={`px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors ${
+                  className={`border-b border-gray-100 px-4 py-3 transition-colors hover:bg-gray-50 ${
                     !notification.isRead ? "bg-blue-50" : ""
                   }`}
                 >
                   <div className="flex items-start gap-3">
-                    <div className="mt-1">
-                      {getIcon(notification.type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-medium ${
-                        !notification.isRead ? "text-gray-900" : "text-gray-600"
-                      }`}>
+                    <div className="mt-1">{getIcon(notification.type)}</div>
+                    <div className="min-w-0 flex-1">
+                      <p
+                        className={`text-sm font-medium ${
+                          !notification.isRead ? "text-gray-900" : "text-gray-600"
+                        }`}
+                      >
                         {notification.title}
                       </p>
-                      <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
+                      <p className="mt-0.5 line-clamp-2 text-xs text-gray-500">
                         {notification.message}
                       </p>
-                      <div className="flex items-center justify-between mt-2">
+                      <div className="mt-2 flex items-center justify-between">
                         <span className="text-xs text-gray-400">
                           {formatTime(notification.createdAt)}
                         </span>
@@ -238,7 +181,7 @@ const NotificationBell = () => {
                           {!notification.isRead && (
                             <button
                               onClick={() => handleMarkAsRead(notification._id)}
-                              className="p-1 hover:bg-gray-200 rounded"
+                              className="rounded p-1 hover:bg-gray-200"
                               title="Mark as read"
                             >
                               <Check className="h-3 w-3 text-gray-500" />
@@ -247,7 +190,7 @@ const NotificationBell = () => {
                           {notification.link && (
                             <a
                               href={notification.link}
-                              className="p-1 hover:bg-gray-200 rounded"
+                              className="rounded p-1 hover:bg-gray-200"
                               title="View"
                             >
                               <ExternalLink className="h-3 w-3 text-gray-500" />
@@ -255,7 +198,7 @@ const NotificationBell = () => {
                           )}
                           <button
                             onClick={() => handleDelete(notification._id)}
-                            className="p-1 hover:bg-gray-200 rounded"
+                            className="rounded p-1 hover:bg-gray-200"
                             title="Delete"
                           >
                             <Trash2 className="h-3 w-3 text-gray-500" />
@@ -264,7 +207,7 @@ const NotificationBell = () => {
                       </div>
                     </div>
                     {!notification.isRead && (
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                      <div className="mt-2 h-2 w-2 rounded-full bg-blue-500" />
                     )}
                   </div>
                 </div>

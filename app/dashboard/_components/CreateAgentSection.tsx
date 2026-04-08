@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useContext, useState } from 'react'
-import { Loader2, Plus, Eye, Sparkles, Wand2, Layers } from 'lucide-react'
+import { Loader2, Plus, Eye, Sparkles, Wand2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
 import {
@@ -94,89 +94,112 @@ const CreateAgentSection = () => {
   }
 
   return (
-    <div className="space-y-2 flex flex-col justify-center items-center mt-8">
-      <div className="text-center mb-6">
-        <div className="inline-flex items-center justify-center p-4 bg-gradient-to-r from-violet-100 via-purple-100 to-pink-100 rounded-2xl mb-4">
-          <Sparkles className="h-8 w-8 text-violet-600" />
+    <>
+      <section className="flex min-h-[360px] w-full flex-col items-center justify-center px-4 pb-10 pt-8 text-center md:min-h-[420px]">
+        <div className="inline-flex h-[82px] w-[82px] items-center justify-center rounded-[26px] bg-gradient-to-br from-[#f3e7ff] via-[#ecd9ff] to-[#f5e9fb] shadow-[0_18px_40px_-24px_rgba(126,52,244,0.45)]">
+          <Sparkles className="h-10 w-10 text-[#7b31f5]" />
         </div>
-        <h2 className="font-bold text-3xl bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-          Create AI Agent
+        <h2 className="mt-7 text-4xl font-bold tracking-tight text-[#8829f4] md:text-[3.2rem]">
+          Nova AI Assistant
         </h2>
-        <p className="text-lg text-gray-500 mt-2">
-          Build an AI Agent workflow with custom logic and tools
+        <p className="mt-4 max-w-[660px] text-lg text-slate-500 md:text-[1.05rem]">
+          Build and launch intelligent agents with professional workflows, templates, and real-time analytics.
         </p>
-      </div>
 
-      <div className="flex gap-4 mt-4">
-        {/* Preview Button - Enhanced Styling */}
-        <Button 
-          size="lg" 
-          variant="outline"
-          onClick={() => setOpenPreview(true)}
-          className="gap-2 px-8 py-6 text-lg rounded-2xl border-2 border-violet-200 hover:border-violet-400 hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 transition-all hover:shadow-lg hover:shadow-purple-500/20"
-        >
-          <Eye className="h-5 w-5" />
-          Preview
-        </Button>
+        <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row">
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={() => setOpenPreview(true)}
+            className="h-[62px] min-w-[162px] gap-2 rounded-[22px] border border-[#d8c8ff] bg-white px-8 text-[1.05rem] font-semibold text-slate-950 shadow-[0_14px_30px_-22px_rgba(96,82,185,0.45)] transition-all hover:-translate-y-0.5 hover:border-[#bfa5ff] hover:bg-white"
+          >
+            <Eye className="h-5 w-5" />
+            Preview
+          </Button>
 
-        {/* Create Button - Enhanced Styling */}
-        <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-          <DialogTrigger asChild>
-            <Button size="lg" className="gap-2 px-8 py-6 text-lg rounded-2xl bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 hover:from-violet-700 hover:via-purple-700 hover:to-pink-700 shadow-xl shadow-purple-500/25 transition-all hover:scale-105 hover:shadow-2xl">
-              <Plus className="h-5 w-5" />
-              Create
-            </Button>
-          </DialogTrigger>
-
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Wand2 className="h-5 w-5 text-violet-600" />
-                Enter Agent Name
-              </DialogTitle>
-            </DialogHeader>
-
-            <div className="grid gap-4 py-4">
-              <Input
-                placeholder="My Awesome Agent"
-                value={agentName}
-                onChange={(e) => setAgentName(e.target.value)}
-                className="h-12 rounded-xl border-2 border-violet-200 focus:border-violet-500 focus:ring-violet-200 text-lg"
-                autoFocus
-              />
-              <p className="text-xs text-gray-500">
-                Give your agent a descriptive name to help you identify it later
-              </p>
-            </div>
-
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="ghost" className="rounded-xl">
-                  Cancel
-                </Button>
-              </DialogClose>
-
-              <Button 
-                onClick={createAgent} 
-                disabled={loader || !agentName.trim()}
-                className="rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
+          <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+            <DialogTrigger asChild>
+              <Button
+                size="lg"
+                className="h-[62px] min-w-[162px] gap-2 rounded-[22px] bg-gradient-to-r from-[#6f2cff] via-[#8d27f3] to-[#ff2e98] px-8 text-[1.05rem] font-semibold text-white shadow-[0_20px_38px_-18px_rgba(209,66,177,0.72)] transition-all hover:-translate-y-0.5 hover:scale-[1.01]"
               >
-                {loader && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
-                Create Agent
+                <Plus className="h-5 w-5" />
+                Create
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
+            </DialogTrigger>
 
-        {/* Agent Preview Modal with sidebar tools + real-time */}
-      <AgentPreviewModal 
-        open={openPreview} 
-        onOpenChange={setOpenPreview} 
-      />
-    </div>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Wand2 className="h-5 w-5 text-violet-600" />
+                  Enter Agent Name
+                </DialogTitle>
+              </DialogHeader>
+
+              <div className="grid gap-4 py-4">
+                <Input
+                  placeholder="My Awesome Agent"
+                  value={agentName}
+                  onChange={(e) => setAgentName(e.target.value)}
+                  className="h-12 rounded-xl border-2 border-violet-200 text-lg focus:border-violet-500 focus:ring-violet-200"
+                  autoFocus
+                />
+                <p className="text-sm text-slate-500">
+                  Give your agent a descriptive name to help you identify it later.
+                </p>
+              </div>
+
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="ghost" className="rounded-xl">
+                    Cancel
+                  </Button>
+                </DialogClose>
+
+                <Button
+                  onClick={createAgent}
+                  disabled={loader || !agentName.trim()}
+                  className="rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
+                >
+                  {loader && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  Create Agent
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {[
+            {
+              title: "Quick templates",
+              description: "Start from professional agent templates and customize faster.",
+            },
+            {
+              title: "Live agent preview",
+              description: "See how your agent behaves before you publish it.",
+            },
+            {
+              title: "Smart summaries",
+              description: "Get instant feedback on performance, activity, and unread chats.",
+            },
+            {
+              title: "Secure build",
+              description: "Your AI agent data and credentials stay protected.",
+            },
+          ].map((item) => (
+            <div key={item.title} className="rounded-[24px] border border-slate-200 bg-white p-4 text-left shadow-[0_18px_40px_-30px_rgba(15,23,42,0.1)]">
+              <div className="text-sm font-semibold text-slate-900">{item.title}</div>
+              <p className="mt-2 text-sm text-slate-500">{item.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <AgentPreviewModal open={openPreview} onOpenChange={setOpenPreview} />
+    </>
   )
 }
 

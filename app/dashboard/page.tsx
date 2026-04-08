@@ -2,11 +2,16 @@
 "use client";
 import CreateAgentSection from "./_components/CreateAgentSection";
 import AiAgentTab from "./_components/AiAgentTab";
+import DashboardRealtimeOverview from "./_components/DashboardRealtimeOverview";
+import { SafeRenderBoundary } from "@/components/system/SafeRenderBoundary";
 
 export default function DashboardPage() {
   return (
-    <div className="mx-auto w-full space-y-8">
+    <div className="w-full pb-8">
       <CreateAgentSection />
+      <SafeRenderBoundary fallback={null}>
+        <DashboardRealtimeOverview />
+      </SafeRenderBoundary>
       <AiAgentTab />
     </div>
   )
